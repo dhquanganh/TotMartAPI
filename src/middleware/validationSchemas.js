@@ -46,11 +46,26 @@ const brandSchema = joi.object({
   logo: joi.string().uri().optional()
 });
 
+const updateBrandSchema = joi.object({
+  name: joi.string().min(3).max(100).optional(),
+  description: joi.string().max(500).optional(),
+  cityAddress: joi.string().max(255).optional(),
+  logo: joi.string().uri().optional()
+}).min(1);
+
+const categorySchema = joi.object({
+  name: joi.string().min(3).max(100).required(),
+  description: joi.string().max(500).optional(),
+  level: joi.number().integer().required(),
+})
+
 module.exports = {
   registerSchema,
   productSchema,
   updateAddressSchema,
+  updateBrandSchema,
   brandSchema,
   updateUserSchema,
-  idParamSchema
+  idParamSchema,
+  categorySchema
 };

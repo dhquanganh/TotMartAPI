@@ -3,8 +3,8 @@ const slug = require('mongoose-slug-updater');
 const categorySchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true},
     category: { type: String, required: true},
-    subcategory: { type: String},
-    isActie: { type: Boolean, default: true},
+    isActive: { type: Boolean, default: true},
+    level: { type: Number, required: true},
     slug: { type: String, slug: "name"}
 },{
     timestamps: true

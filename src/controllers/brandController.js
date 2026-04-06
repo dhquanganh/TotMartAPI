@@ -39,7 +39,14 @@ class BrandController {
 
     async deleteBrand(req, res, next){
         try {
-            
+            const products = await productModel.find({ brand: req.params._id });
+            if (products.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Cannot delete brand with associated products'
+                });
+            }
+
             const deletedBrand = await brand.findByIdAndDelete(req.params._id);
             if (!deletedBrand) {
                 return res.status(404).json({
@@ -64,6 +71,19 @@ class BrandController {
                 success: true,
                 message: 'Products retrieved successfully',
                 data: products
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getAllBrands(req, res, next){
+        try {
+            const brands = await brand.find();
+            res.status(200).json({
+                success: true,
+                message: 'Brands retrieved successfully',
+                data: brands
             });
         } catch (error) {
             next(error);

@@ -2,6 +2,7 @@ const express = require('express');
 const routes = require('./routes');
 const errorHandler = require('./middleware/errorHandler');
 const cors = require('cors')
+const cookieParser = require('cookie-parser');
 const app = express();
 
 // Middleware
@@ -10,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // CORS (optional - uncomment if needed)
 app.use(cors());
-
+app.use(cookieParser());
 // Routes
 routes(app);
 

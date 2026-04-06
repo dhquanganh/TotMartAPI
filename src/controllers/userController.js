@@ -1,6 +1,14 @@
 const userModel = require('../models/User');
 const bcrypt = require('bcrypt');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true
+});
 class UserController {
     async createUser(req, res) {
         try {
@@ -55,8 +63,31 @@ class UserController {
     async updateUser(req, res, next) {
         try {
             const validated = req.validatedBody;
+            const getUserAvatar = await userModel.findById(req.params._id);
+            let result = getUserAvatar.avatar;
+            if (req.file) {
+                if (result?.public_id) {
+                    await cloudinary.uploader.destroy(result.public_id);
+                }
+                const uploadResult = await new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: "avatar_users", resource_type: "image" },
+                        (error, result) => {
+                            if (error) return reject(error);
+                            resolve(result);
+                        }
+                    );
+                    stream.end(req.file.buffer);
+                });
+
+                result = {
+                    url: uploadResult.secure_url,
+                    public_id: uploadResult.public_id,
+                };
+            }
             const newData = {
-                ...validated
+                ...validated,
+                avatar: result
             };
             const user = await userModel.findByIdAndUpdate(req.params._id, newData, { new: true });
             if (!user) {
@@ -88,7 +119,7 @@ class UserController {
         }
     }
 
-    async lockUser(req, res, next){
+    async lockUser(req, res, next) {
         try {
             const user = await userModel.findByIdAndUpdate(req.params._id, { isActive: false }, { new: true });
             if (!user) {
@@ -104,7 +135,7 @@ class UserController {
         }
     }
 
-    async unlockUser(req, res, next){
+    async unlockUser(req, res, next) {
         try {
             const user = await userModel.findByIdAndUpdate(req.params._id, { isActive: true }, { new: true });
             if (!user) {
@@ -120,7 +151,7 @@ class UserController {
         }
     }
 
-    async updateAddress(req, res, next){
+    async updateAddress(req, res, next) {
         try {
             const newAddress = {
                 country: req.body.country || user.addreses.country,
@@ -143,7 +174,7 @@ class UserController {
         }
     }
 
-    async editAddress(req, res, next){
+    async editAddress(req, res, next) {
         try {
             const user = await userModel.findById(req.params._id);
             if (!user) {
@@ -169,7 +200,7 @@ class UserController {
         }
     }
 
-    async deleteAddress(req, res, next){
+    async deleteAddress(req, res, next) {
         try {
             const user = await userModel.findByIdAndUpdate(req.params._id, { $pull: { addreses: { _id: req.params.address_id } } }, { new: true });
             if (!user) {
@@ -181,7 +212,7 @@ class UserController {
                 data: user
             });
         } catch (error) {
-            next(error);    
+            next(error);
         }
     }
 }

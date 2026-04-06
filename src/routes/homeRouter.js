@@ -5,10 +5,7 @@ const authController = require('../controllers/authController');
 const auth = require('../middleware/authMiddleware');
 
 router.get('/health', (req, res) => {
-    res.status(200).json({
-        success: true,
-        message: 'Server is running'
-    })
+    res.send('API is healthy');
 });
 
 router.post('/login', authController.login);

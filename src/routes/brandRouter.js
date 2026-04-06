@@ -7,19 +7,28 @@ const validationSchemas = require('../middleware/validationSchemas');
 
 router.post('/create-brand',
     authMiddleware.authMiddleware,
+    authMiddleware.adminMiddleware,
     validationHandler.validate(validationSchemas.brandSchema),
     brandController.createBrand
 )
 router.put('/update-brand/:_id',
     authMiddleware.authMiddleware,
-    validationHandler.validate(validationSchemas.brandSchema),
+    authMiddleware.adminMiddleware,
     validationHandler.validate(validationSchemas.idParamSchema, 'params'),
+    validationHandler.validate(validationSchemas.updateBrandSchema),
     brandController.updateBrand
 )
 router.delete('/delete-brand/:_id',
     authMiddleware.authMiddleware,
+    authMiddleware.adminMiddleware,
     validationHandler.validate(validationSchemas.idParamSchema, 'params'),
     brandController.deleteBrand
+)
+
+router.get('/get-all-brands',
+    authMiddleware.authMiddleware,
+    authMiddleware.adminMiddleware,
+    brandController.getAllBrands
 )
 
 module.exports = router;
