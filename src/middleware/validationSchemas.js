@@ -10,6 +10,11 @@ const registerSchema = joi.object({
   phone: joi.string().pattern(/^[0-9()+\s-]{7,20}$/).required()
 });
 
+const loginSchema = joi.object({
+  email: joi.string().email().required(),
+  password: joi.string().min(6).required()
+});
+
 const updateUserSchema = joi.object({
   name: joi.string().min(3).max(100).optional(),
   city: joi.string().max(100).optional(),
@@ -29,6 +34,8 @@ const productSchema = joi.object({
   category: joi.string().max(100).required(),
   stock: joi.number().integer().min(0).required(),
   details: joi.string().max(1000).optional(),
+  brand: joi.string().max(100).required(),
+  images: joi.array().items(joi.string().uri()).min(1).required()
 })
 
 const updateAddressSchema = joi.object({
@@ -61,6 +68,7 @@ const categorySchema = joi.object({
 
 module.exports = {
   registerSchema,
+  loginSchema,
   productSchema,
   updateAddressSchema,
   updateBrandSchema,
