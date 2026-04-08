@@ -117,7 +117,7 @@ class ProductController {
     async deleteProduct(req, res, next){
         try {
             const foundProduct = await productModel.findById(req.params._id);
-            if(foundProduct){
+            if(foundProduct && foundProduct.images && foundProduct.images.length > 0){
                 const folderName = "products/" + foundProduct.name.trim().toLowerCase().replace(/\s+/g, '-');
                 await cloudinary.api.delete_resources_by_prefix(folderName);
                 await cloudinary.api.delete_folder(folderName);
