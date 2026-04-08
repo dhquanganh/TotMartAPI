@@ -2,6 +2,7 @@ const productModel = require('../models/Product');
 const brandModel = require('../models/Brand');
 const categoryModel = require('../models/Category');
 const cloudinary = require('cloudinary').v2;
+const randomString = require('randomstring');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -15,6 +16,7 @@ class ProductController {
         try {
             const validated = req.validatedBody;
             const newProduct = new productModel(validated);
+            newProduct.productId = randomString.generate({ length: 9});
             let result = [];
             const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             if (req.files && req.files.length > 0) {
