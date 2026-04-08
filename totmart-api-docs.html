@@ -580,11 +580,6 @@
         <div id="products-eps"></div>
       </div>
 
-      <div class="section" id="products">
-        <div class="section-header">Sản phẩm</div>
-        <div id="products-update"></div>
-      </div>
-
       <!-- Brands -->
       <div class="section" id="brands">
         <div class="section-header">Thương hiệu</div>
@@ -784,7 +779,7 @@
       ],
       "products-eps": [
         {
-          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới", auth: true,
+          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới", auth: true, admin: true,
           fields: [
             { name: "name", type: "string", required: true, desc: "Tên sản phẩm" },
             { name: "description", type: "string", required: false, desc: "Mô tả sản phẩm" },
@@ -807,12 +802,16 @@
     "brand": "64a1b2c3d4e5f6789abc1111",
     "category": "64a1b2c3d4e5f6789abc2222",
     "images": ["https://example.com/img1.jpg"],
-    "productId": "PRD-001"
+    "productId": "random-string"
   }'` },
-      ],
-      "products-update": [
         {
-          method: "PUT", path: "/products/update-product/:_id", desc: "Cập nhật sản phẩm", auth: true,
+          method: "GET", path: "/products/get-all-products", desc: "Lấy tất cả sản phẩm", auth: true, admin: true,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/products/get-all-products \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"`
+        },
+        {
+          method: "PUT", path: "/products/update-product/:_id", desc: "Cập nhật sản phẩm", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của sản phẩm" }],
           fields: [
             { name: "name", type: "string", required: false, desc: "Tên sản phẩm mới" },
@@ -823,8 +822,21 @@
             { name: "category", type: "ObjectId", required: false, desc: "ID danh mục mới" },
             { name: "images", type: "string[]", required: false, desc: "Danh sách URL ảnh mới" },
           ],
-          codes: ["200", "400", "404", "401"],
-          example: `curl -X PUT http://localhost:3000/api/products/update-product/64a1b2c3d4e5f6789abc3333 \\`
+          codes: ["200", "400", "404", "401", "403"],
+          example: `curl -X PUT http://localhost:3000/api/products/update-product/64a1b2c3d4e5f6789abc3333 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "price": 250000,
+    "quantity": 30
+  }'`
+        },
+        {
+          method: "DELETE", path: "/products/delete-product/:_id", desc: "Xóa sản phẩm", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của sản phẩm" }],
+          codes: ["200", "404", "401", "403"],
+          example: `curl -X DELETE http://localhost:3000/api/products/delete-product/64a1b2c3d4e5f6789abc3333 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"`
         }
       ],
       "brands-eps": [

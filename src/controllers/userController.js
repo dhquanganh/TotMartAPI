@@ -15,10 +15,6 @@ class UserController {
             const validated = req.validatedBody;
             const hashedPassword = await bcrypt.hash(validated.password, 9);
             const user = await userModel.create({ ...validated, password: hashedPassword });
-            user.addreses.city = validated.city;
-            user.addreses.district = validated.district;
-            user.addreses.address = validated.address;
-            await user.save();
 
             res.status(201).json({
                 success: true,
@@ -103,7 +99,7 @@ class UserController {
     }
 
     async deleteUser(req, res, next) {
-        try {   
+        try {
             const foundUser = await userModel.findById(req.params._id);
             if (foundUser && foundUser.avatar && foundUser.avatar.public_id) {
                 const folderName = "users/" + foundUser.name;
