@@ -237,14 +237,6 @@ All errors are returned with a consistent format:
 }
 ```
 
-## MongoDB Connection
-
-The project uses Mongoose for MongoDB connection. Make sure MongoDB is running before starting the server.
-
-**For MongoDB Atlas (Cloud):**
-```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database-name?retryWrites=true&w=majority
-```
 
 ## Development Tips
 

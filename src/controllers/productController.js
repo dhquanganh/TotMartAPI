@@ -38,12 +38,96 @@ class ProductController {
 
                 result = uploadResults;
             }
-            newProduct.images = result;q 
+            newProduct.images = result; 
             await newProduct.save();
             res.status(201).json({
                 success: true,
                 message: 'Product created successfully',
                 data: newProduct
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getAllProducts(req, res, next){
+        try {
+            const products = await productModel.find().populate('brand').populate('category');
+            res.status(200).json({
+                success: true,
+                message: 'Products retrieved successfully',
+                data: products
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateProduct(req, res, next){
+        try {
+            const { _id } = req.params;
+            const validated = req.validatedBody;
+            const getProduct = await productModel.findById(_id);
+            if (req.files) {
+                const uploadResults = await Promise.all(
+                    req.files.map(file => {
+                        return new Promise((resolve, reject) => {
+                            const stream = cloudinary.uploader.upload_stream(
+                                { folder: "products/" + req.body.name, resource_type: "image" },
+                                (error, result) => {
+                                    if (error) return reject(error);
+                                    resolve({
+                                        url: result.secure_url,
+                                        public_id: result.public_id,
+                                    });
+                                }
+                            );
+                            stream.end(file.buffer);
+                        });
+                    })
+                );
+                for (let i = 0; i < req.files.length; i++) {
+                    const match = req.files[i].fieldname.match(/\d+/);
+                    if (getProduct.images[match[0]]) {
+                        await cloudinary.uploader.destroy(getProduct.images[match[0]].public_id);
+                        getProduct.images[match[0]].url = uploadResults[i].url;
+                        getProduct.images[match[0]].public_id = uploadResults[i].public_id;
+                    }
+                }
+            }
+            getproduct.name = validated.name || getProduct.name;
+            getProduct.description = validated.description || getProduct.description;
+            getProduct.price = validated.price || getProduct.price;
+            getProduct.brand = validated.brand || getProduct.brand;
+            getProduct.category = validated.category || getProduct.category;
+            await getProduct.save();
+            res.status(200).json({
+                success: true,
+                message: 'Product updated successfully',
+                data: getProduct
+            });
+
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteProduct(req, res, next){
+        try {
+            const foundProduct = await productModel.findById(req.params._id);
+            if(foundProduct){
+                const folderName = "products/" + foundProduct.name.trim().toLowerCase().replace(/\s+/g, '-');
+                await cloudinary.api.delete_resources_by_prefix(folderName);
+                await cloudinary.api.delete_folder(folderName);
+                await productModel.findByIdAndDelete(req.params._id);
+                return res.status(200).json({
+                    success: true,
+                    message: 'Product deleted successfully'
+                });
+            }
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
             });
         } catch (error) {
             next(error);

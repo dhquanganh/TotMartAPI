@@ -18,7 +18,6 @@ class UserController {
             user.addreses.city = validated.city;
             user.addreses.district = validated.district;
             user.addreses.address = validated.address;
-            user.addreses.phone = validated.phone;
             await user.save();
 
             res.status(201).json({
@@ -104,15 +103,20 @@ class UserController {
     }
 
     async deleteUser(req, res, next) {
-        try {
-            const user = await userModel.findByIdAndDelete(req.params._id);
+        try {   
+            const foundUser = await userModel.findById(req.params._id);
+            if (foundUser) {
+                const folderName = "users/" + foundUser.name;
+                await cloudinary.api.delete_resources_by_prefix(folderName);
+                await cloudinary.api.delete_folder(folderName);
+            }
+            await userModel.findByIdAndDelete(req.params._id);
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
             res.status(200).json({
                 success: true,
-                message: 'User deleted successfully',
-                data: user
+                message: 'User deleted successfully'
             });
         } catch (error) {
             next(error);

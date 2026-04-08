@@ -12,5 +12,4 @@ router.get('/health', (req, res) => {
 
 router.post('/login', validationHandler.validate(validationSchemas.loginSchema), authController.login);
 router.post('/logout',auth.authMiddleware, authController.logout);
-
 module.exports = router;
