@@ -105,7 +105,7 @@ class UserController {
     async deleteUser(req, res, next) {
         try {   
             const foundUser = await userModel.findById(req.params._id);
-            if (foundUser) {
+            if (foundUser && foundUser.avatar && foundUser.avatar.public_id) {
                 const folderName = "users/" + foundUser.name;
                 await cloudinary.api.delete_resources_by_prefix(folderName);
                 await cloudinary.api.delete_folder(folderName);
