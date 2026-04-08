@@ -3,11 +3,7 @@ const joi = require('joi');
 const registerSchema = joi.object({
   name: joi.string().min(3).max(100).required(),
   email: joi.string().email().required(),
-  password: joi.string().min(6).required(),
-  city: joi.string().max(100).required(),
-  district: joi.string().max(100).required(),
-  address: joi.string().max(255).required(),
-  phone: joi.string().pattern(/^[0-9()+\s-]{7,20}$/).required()
+  password: joi.string().min(6).required()
 });
 
 const loginSchema = joi.object({

@@ -1,446 +1,712 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TotMart API Docs</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0f0f11;
-    --bg2: #18181c;
-    --bg3: #202026;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #e8e8ea;
-    --muted: #888892;
-    --faint: #555560;
-    --get: #3dd68c; --get-bg: rgba(61,214,140,.1);
-    --post: #4da6ff; --post-bg: rgba(77,166,255,.1);
-    --put: #f4a942; --put-bg: rgba(244,169,66,.1);
-    --del: #ff6b6b; --del-bg: rgba(255,107,107,.1);
-    --patch: #c084fc; --patch-bg: rgba(192,132,252,.1);
-    --c2: #3dd68c; --c2bg: rgba(61,214,140,.1);
-    --c4: #f4a942; --c4bg: rgba(244,169,66,.1);
-    --c40: #ff6b6b; --c40bg: rgba(255,107,107,.1);
-    --c41: #ff6b6b; --c41bg: rgba(255,107,107,.1);
-    --c43: #f4a942; --c43bg: rgba(244,169,66,.1);
-    --c44: #888892; --c44bg: rgba(136,136,146,.1);
-    --accent: #4da6ff;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 14px;
-    line-height: 1.6;
-    min-height: 100vh;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TotMart API Docs</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f11;
+      --bg2: #18181c;
+      --bg3: #202026;
+      --border: rgba(255, 255, 255, 0.08);
+      --border2: rgba(255, 255, 255, 0.14);
+      --text: #e8e8ea;
+      --muted: #888892;
+      --faint: #555560;
+      --get: #3dd68c;
+      --get-bg: rgba(61, 214, 140, .1);
+      --post: #4da6ff;
+      --post-bg: rgba(77, 166, 255, .1);
+      --put: #f4a942;
+      --put-bg: rgba(244, 169, 66, .1);
+      --del: #ff6b6b;
+      --del-bg: rgba(255, 107, 107, .1);
+      --patch: #c084fc;
+      --patch-bg: rgba(192, 132, 252, .1);
+      --c2: #3dd68c;
+      --c2bg: rgba(61, 214, 140, .1);
+      --c4: #f4a942;
+      --c4bg: rgba(244, 169, 66, .1);
+      --c40: #ff6b6b;
+      --c40bg: rgba(255, 107, 107, .1);
+      --c41: #ff6b6b;
+      --c41bg: rgba(255, 107, 107, .1);
+      --c43: #f4a942;
+      --c43bg: rgba(244, 169, 66, .1);
+      --c44: #888892;
+      --c44bg: rgba(136, 136, 146, .1);
+      --accent: #4da6ff;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
 
-  /* Layout */
-  .layout { display: flex; min-height: 100vh; }
-  .sidebar {
-    width: 220px;
-    flex-shrink: 0;
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    padding: 1.5rem 0;
-  }
-  .sidebar-logo {
-    padding: 0 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 1rem;
-  }
-  .sidebar-logo .name {
-    font-weight: 500;
-    font-size: 15px;
-    letter-spacing: .5px;
-    color: var(--text);
-  }
-  .sidebar-logo .ver {
-    font-size: 11px;
-    color: var(--muted);
-    font-family: var(--mono);
-    margin-top: 2px;
-  }
-  .nav-section { margin-bottom: .5rem; }
-  .nav-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    color: var(--faint);
-    font-weight: 500;
-    padding: .5rem 1.25rem .25rem;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: .4rem 1.25rem;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    text-decoration: none;
-    transition: color .15s, background .15s;
-    border-left: 2px solid transparent;
-  }
-  .nav-item:hover { color: var(--text); background: var(--bg3); }
-  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(77,166,255,.06); }
-  .nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  /* Main content */
-  .main { flex: 1; padding: 3rem 3rem 6rem; max-width: 860px; }
-  .page-title { font-size: 26px; font-weight: 300; margin-bottom: .35rem; letter-spacing: -.3px; }
-  .page-subtitle { color: var(--muted); font-size: 13px; margin-bottom: 2rem; font-family: var(--mono); }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
 
-  /* Auth info bar */
-  .info-bar {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: .85rem 1.1rem;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 2.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-  }
-  .info-bar span { color: var(--text); }
-  .info-bar .sep { color: var(--border2); }
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
-  /* Section */
-  .section { margin-bottom: 2.5rem; scroll-margin-top: 2rem; }
-  .section-header {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    font-weight: 500;
-    color: var(--faint);
-    margin-bottom: .75rem;
-    padding-bottom: .5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-header::before {
-    content: '';
-    width: 3px;
-    height: 12px;
-    background: var(--accent);
-    border-radius: 2px;
-    opacity: .6;
-  }
+    .sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 1.5rem 0;
+    }
 
-  /* Endpoint card */
-  .endpoint {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    margin-bottom: .5rem;
-    overflow: hidden;
-    transition: border-color .15s;
-  }
-  .endpoint:hover { border-color: var(--border2); }
-  .endpoint.open { border-color: var(--border2); }
+    .sidebar-logo {
+      padding: 0 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
 
-  .ep-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: .7rem 1rem;
-    cursor: pointer;
-    user-select: none;
-  }
-  .method {
-    font-family: var(--mono);
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 4px;
-    min-width: 52px;
-    text-align: center;
-    letter-spacing: .3px;
-  }
-  .m-get  { color: var(--get);  background: var(--get-bg); }
-  .m-post { color: var(--post); background: var(--post-bg); }
-  .m-put  { color: var(--put);  background: var(--put-bg); }
-  .m-del  { color: var(--del);  background: var(--del-bg); }
-  .m-patch{ color: var(--patch);background: var(--patch-bg); }
+    .sidebar-logo .name {
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: .5px;
+      color: var(--text);
+    }
 
-  .ep-path {
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--text);
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .ep-desc { font-size: 12px; color: var(--muted); }
-  .badges { display: flex; gap: 5px; margin-left: auto; align-items: center; }
-  .badge-tag {
-    font-size: 10px;
-    padding: 1px 7px;
-    border-radius: 3px;
-    font-weight: 500;
-    letter-spacing: .3px;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    white-space: nowrap;
-  }
-  .badge-admin { color: var(--put); border-color: rgba(244,169,66,.25); }
-  .badge-auth  { color: var(--accent); border-color: rgba(77,166,255,.25); }
-  .chevron {
-    color: var(--faint);
-    font-size: 10px;
-    transition: transform .2s;
-    flex-shrink: 0;
-  }
-  .endpoint.open .chevron { transform: rotate(180deg); }
+    .sidebar-logo .ver {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
 
-  /* Detail panel */
-  .ep-detail {
-    display: none;
-    border-top: 1px solid var(--border);
-    padding: 1rem 1.1rem;
-    background: var(--bg3);
-  }
-  .endpoint.open .ep-detail { display: block; }
+    .nav-section {
+      margin-bottom: .5rem;
+    }
 
-  .dl { margin-bottom: 1rem; }
-  .dl:last-child { margin-bottom: 0; }
-  .dl-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .6px;
-    color: var(--faint);
-    margin-bottom: .4rem;
-    font-weight: 500;
-  }
-  pre {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: .75rem 1rem;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: #a8d8a8;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .codes { display: flex; flex-wrap: wrap; gap: 5px; }
-  .code-pill {
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 2px 9px;
-    border-radius: 4px;
-    font-weight: 500;
-  }
-  .s2xx { color: var(--c2);  background: var(--c2bg); }
-  .s400 { color: var(--c4);  background: var(--c4bg); }
-  .s401 { color: var(--del); background: var(--del-bg); }
-  .s403 { color: var(--put); background: var(--put-bg); }
-  .s404 { color: var(--muted); background: rgba(136,136,146,.1); }
-  .s500 { color: var(--del); background: var(--del-bg); }
+    .nav-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--faint);
+      font-weight: 500;
+      padding: .5rem 1.25rem .25rem;
+    }
 
-  .params-table { width: 100%; font-size: 12px; border-collapse: collapse; }
-  .params-table td { padding: 5px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
-  .params-table tr:last-child td { border-bottom: none; }
-  .params-table td:first-child { font-family: var(--mono); color: var(--accent); width: 150px; }
-  .params-table td:last-child { color: var(--muted); }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: .4rem 1.25rem;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .15s, background .15s;
+      border-left: 2px solid transparent;
+    }
 
-  /* Error section */
-  .error-table { width: 100%; font-size: 13px; border-collapse: collapse; }
-  .error-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--faint); font-weight: 500; padding: .5rem .75rem; border-bottom: 1px solid var(--border); }
-  .error-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); color: var(--muted); }
-  .error-table tr:last-child td { border-bottom: none; }
-  .error-table td:first-child { font-family: var(--mono); }
+    .nav-item:hover {
+      color: var(--text);
+      background: var(--bg3);
+    }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+    .nav-item.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(77, 166, 255, .06);
+    }
 
-  @media(max-width:640px){
-    .sidebar { display: none; }
-    .main { padding: 1.5rem; }
-    .ep-desc { display: none; }
-  }
-</style>
+    .nav-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      padding: 3rem 3rem 6rem;
+      max-width: 860px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 300;
+      margin-bottom: .35rem;
+      letter-spacing: -.3px;
+    }
+
+    .page-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 2rem;
+      font-family: var(--mono);
+    }
+
+    /* Auth info bar */
+    .info-bar {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .85rem 1.1rem;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .info-bar span {
+      color: var(--text);
+    }
+
+    .info-bar .sep {
+      color: var(--border2);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 2.5rem;
+      scroll-margin-top: 2rem;
+    }
+
+    .section-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      font-weight: 500;
+      color: var(--faint);
+      margin-bottom: .75rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-header::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 2px;
+      opacity: .6;
+    }
+
+    /* Endpoint card */
+    .endpoint {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: .5rem;
+      overflow: hidden;
+      transition: border-color .15s;
+    }
+
+    .endpoint:hover {
+      border-color: var(--border2);
+    }
+
+    .endpoint.open {
+      border-color: var(--border2);
+    }
+
+    .ep-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: .7rem 1rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .method {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 52px;
+      text-align: center;
+      letter-spacing: .3px;
+    }
+
+    .m-get {
+      color: var(--get);
+      background: var(--get-bg);
+    }
+
+    .m-post {
+      color: var(--post);
+      background: var(--post-bg);
+    }
+
+    .m-put {
+      color: var(--put);
+      background: var(--put-bg);
+    }
+
+    .m-del {
+      color: var(--del);
+      background: var(--del-bg);
+    }
+
+    .m-patch {
+      color: var(--patch);
+      background: var(--patch-bg);
+    }
+
+    .ep-path {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ep-desc {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .badges {
+      display: flex;
+      gap: 5px;
+      margin-left: auto;
+      align-items: center;
+    }
+
+    .badge-tag {
+      font-size: 10px;
+      padding: 1px 7px;
+      border-radius: 3px;
+      font-weight: 500;
+      letter-spacing: .3px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .badge-admin {
+      color: var(--put);
+      border-color: rgba(244, 169, 66, .25);
+    }
+
+    .badge-auth {
+      color: var(--accent);
+      border-color: rgba(77, 166, 255, .25);
+    }
+
+    .chevron {
+      color: var(--faint);
+      font-size: 10px;
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+
+    .endpoint.open .chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Detail panel */
+    .ep-detail {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 1rem 1.1rem;
+      background: var(--bg3);
+    }
+
+    .endpoint.open .ep-detail {
+      display: block;
+    }
+
+    .dl {
+      margin-bottom: 1rem;
+    }
+
+    .dl:last-child {
+      margin-bottom: 0;
+    }
+
+    .dl-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: var(--faint);
+      margin-bottom: .4rem;
+      font-weight: 500;
+    }
+
+    pre {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .75rem 1rem;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: #a8d8a8;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .codes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .code-pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .s2xx {
+      color: var(--c2);
+      background: var(--c2bg);
+    }
+
+    .s400 {
+      color: var(--c4);
+      background: var(--c4bg);
+    }
+
+    .s401 {
+      color: var(--del);
+      background: var(--del-bg);
+    }
+
+    .s403 {
+      color: var(--put);
+      background: var(--put-bg);
+    }
+
+    .s404 {
+      color: var(--muted);
+      background: rgba(136, 136, 146, .1);
+    }
+
+    .s500 {
+      color: var(--del);
+      background: var(--del-bg);
+    }
+
+    .params-table {
+      width: 100%;
+      font-size: 12px;
+      border-collapse: collapse;
+    }
+
+    .params-table td {
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .params-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .params-table td:first-child {
+      font-family: var(--mono);
+      color: var(--accent);
+      width: 150px;
+    }
+
+    .params-table td:last-child {
+      color: var(--muted);
+    }
+
+    /* Error section */
+    .error-table {
+      width: 100%;
+      font-size: 13px;
+      border-collapse: collapse;
+    }
+
+    .error-table th {
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--faint);
+      font-weight: 500;
+      padding: .5rem .75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .error-table td {
+      padding: .6rem .75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .error-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .error-table td:first-child {
+      font-family: var(--mono);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border2);
+      border-radius: 3px;
+    }
+
+    @media(max-width:640px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        padding: 1.5rem;
+      }
+
+      .ep-desc {
+        display: none;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="layout">
-  <!-- Sidebar -->
-  <nav class="sidebar">
-    <div class="sidebar-logo">
-      <div class="name">TotMart API</div>
-      <div class="ver">v1.0.0</div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Tổng quan</div>
-      <a class="nav-item active" href="#health">
-        <span class="nav-dot" style="background:#3dd68c"></span> Health & Auth
-      </a>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Endpoints</div>
-      <a class="nav-item" href="#users">
-        <span class="nav-dot" style="background:#4da6ff"></span> Người dùng
-      </a>
-      <a class="nav-item" href="#products">
-        <span class="nav-dot" style="background:#c084fc"></span> Sản phẩm
-      </a>
-      <a class="nav-item" href="#brands">
-        <span class="nav-dot" style="background:#f4a942"></span> Thương hiệu
-      </a>
-      <a class="nav-item" href="#categories">
-        <span class="nav-dot" style="background:#ff6b6b"></span> Danh mục
-      </a>
-    </div>
-    <div class="nav-section">
-      <div class="nav-label">Khác</div>
-      <a class="nav-item" href="#errors">
-        <span class="nav-dot" style="background:#555560"></span> Lỗi
-      </a>
-    </div>
-  </nav>
-
-  <!-- Main -->
-  <main class="main">
-    <h1 class="page-title">TotMart API</h1>
-    <p class="page-subtitle">Node.js · Express · MongoDB · JWT</p>
-
-    <div class="info-bar">
-      <div>Base URL <span>http://localhost:PORT/api</span></div>
-      <div class="sep">|</div>
-      <div>Auth <span>Authorization: Bearer TOKEN</span></div>
-      <div class="sep">|</div>
-      <div>Roles <span>user · admin</span></div>
-    </div>
-
-    <!-- Health & Auth -->
-    <div class="section" id="health">
-      <div class="section-header">Health &amp; Auth</div>
-      <div id="health-eps"></div>
-    </div>
-
-    <!-- Users -->
-    <div class="section" id="users">
-      <div class="section-header">Người dùng</div>
-      <div id="users-eps"></div>
-    </div>
-
-    <!-- Products -->
-    <div class="section" id="products">
-      <div class="section-header">Sản phẩm</div>
-      <div id="products-eps"></div>
-    </div>
-
-    <!-- Brands -->
-    <div class="section" id="brands">
-      <div class="section-header">Thương hiệu</div>
-      <div id="brands-eps"></div>
-    </div>
-
-    <!-- Categories -->
-    <div class="section" id="categories">
-      <div class="section-header">Danh mục</div>
-      <div id="categories-eps"></div>
-    </div>
-
-    <!-- Errors -->
-    <div class="section" id="errors">
-      <div class="section-header">Mã lỗi</div>
-      <table class="error-table">
-        <thead><tr><th>Status</th><th>Mô tả</th></tr></thead>
-        <tbody>
-          <tr><td class="s2xx">200 / 201</td><td>Thành công</td></tr>
-          <tr><td class="s400">400</td><td>Bad Request – Lỗi xác thực đầu vào</td></tr>
-          <tr><td class="s401">401</td><td>Unauthorized – Không có hoặc token không hợp lệ</td></tr>
-          <tr><td class="s403">403</td><td>Forbidden – Không đủ quyền (cần Admin)</td></tr>
-          <tr><td class="s404">404</td><td>Not Found – Không tìm thấy tài nguyên</td></tr>
-          <tr><td class="s500">500</td><td>Internal Server Error</td></tr>
-        </tbody>
-      </table>
-      <div style="margin-top:1rem">
-        <div class="dl-label">Định dạng lỗi chuẩn</div>
-        <pre>{ "success": false, "message": "Mô tả lỗi", "errors": [{ "field": "fieldName", "message": "Chi tiết" }] }</pre>
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <div class="name">TotMart API</div>
+        <div class="ver">v1.0.0</div>
       </div>
-    </div>
-  </main>
-</div>
+      <div class="nav-section">
+        <div class="nav-label">Tổng quan</div>
+        <a class="nav-item active" href="#health">
+          <span class="nav-dot" style="background:#3dd68c"></span> Health & Auth
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Endpoints</div>
+        <a class="nav-item" href="#users">
+          <span class="nav-dot" style="background:#4da6ff"></span> Người dùng
+        </a>
+        <a class="nav-item" href="#products">
+          <span class="nav-dot" style="background:#c084fc"></span> Sản phẩm
+        </a>
+        <a class="nav-item" href="#brands">
+          <span class="nav-dot" style="background:#f4a942"></span> Thương hiệu
+        </a>
+        <a class="nav-item" href="#categories">
+          <span class="nav-dot" style="background:#ff6b6b"></span> Danh mục
+        </a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Khác</div>
+        <a class="nav-item" href="#errors">
+          <span class="nav-dot" style="background:#555560"></span> Lỗi
+        </a>
+      </div>
+    </nav>
 
-<script>
-const sections = {
-  "health-eps": [
-    { method:"GET", path:"/home/health", desc:"Kiểm tra API đang chạy", auth:false, codes:["200"],
-      example:`curl -X GET http://localhost:3000/api/home/health` },
-    { method:"POST", path:"/home/login", desc:"Đăng nhập, nhận JWT token", auth:false,
-      fields:[
-        {name:"email",    type:"string",  required:true,  desc:"Địa chỉ email đăng ký"},
-        {name:"password", type:"string",  required:true,  desc:"Mật khẩu tài khoản"},
-      ],
-      response:`{ "success": true, "token": "eyJhbGc...", "user": { "_id": "...", "email": "user@example.com", "role": "user" } }`,
-      codes:["200","401","400"],
-      example:`curl -X POST http://localhost:3000/api/home/login \\
+    <!-- Main -->
+    <main class="main">
+      <h1 class="page-title">TotMart API</h1>
+      <p class="page-subtitle">Node.js · Express · MongoDB · JWT</p>
+
+      <div class="info-bar">
+        <div>Base URL <span>http://localhost:PORT/api</span></div>
+        <div class="sep">|</div>
+        <div>Auth <span>Authorization: Bearer TOKEN</span></div>
+        <div class="sep">|</div>
+        <div>Roles <span>user · admin</span></div>
+      </div>
+
+      <!-- Health & Auth -->
+      <div class="section" id="health">
+        <div class="section-header">Health &amp; Auth</div>
+        <div id="health-eps"></div>
+      </div>
+
+      <!-- Users -->
+      <div class="section" id="users">
+        <div class="section-header">Người dùng</div>
+        <div id="users-eps"></div>
+      </div>
+
+      <!-- Products -->
+      <div class="section" id="products">
+        <div class="section-header">Sản phẩm</div>
+        <div id="products-eps"></div>
+      </div>
+
+      <div class="section" id="products">
+        <div class="section-header">Sản phẩm</div>
+        <div id="products-update"></div>
+      </div>
+
+      <!-- Brands -->
+      <div class="section" id="brands">
+        <div class="section-header">Thương hiệu</div>
+        <div id="brands-eps"></div>
+      </div>
+
+      <!-- Categories -->
+      <div class="section" id="categories">
+        <div class="section-header">Danh mục</div>
+        <div id="categories-eps"></div>
+      </div>
+
+      <!-- Errors -->
+      <div class="section" id="errors">
+        <div class="section-header">Mã lỗi</div>
+        <table class="error-table">
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Mô tả</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="s2xx">200 / 201</td>
+              <td>Thành công</td>
+            </tr>
+            <tr>
+              <td class="s400">400</td>
+              <td>Bad Request – Lỗi xác thực đầu vào</td>
+            </tr>
+            <tr>
+              <td class="s401">401</td>
+              <td>Unauthorized – Không có hoặc token không hợp lệ</td>
+            </tr>
+            <tr>
+              <td class="s403">403</td>
+              <td>Forbidden – Không đủ quyền (cần Admin)</td>
+            </tr>
+            <tr>
+              <td class="s404">404</td>
+              <td>Not Found – Không tìm thấy tài nguyên</td>
+            </tr>
+            <tr>
+              <td class="s500">500</td>
+              <td>Internal Server Error</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:1rem">
+          <div class="dl-label">Định dạng lỗi chuẩn</div>
+          <pre>{ "success": false, "message": "Mô tả lỗi", "errors": [{ "field": "fieldName", "message": "Chi tiết" }] }</pre>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const sections = {
+      "health-eps": [
+        {
+          method: "GET", path: "/home/health", desc: "Kiểm tra API đang chạy", auth: false, codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/home/health`
+        },
+        {
+          method: "POST", path: "/home/login", desc: "Đăng nhập, nhận JWT token", auth: false,
+          fields: [
+            { name: "email", type: "string", required: true, desc: "Địa chỉ email đăng ký" },
+            { name: "password", type: "string", required: true, desc: "Mật khẩu tài khoản" },
+          ],
+          response: `{ "success": true, "token": "eyJhbGc...", "user": { "_id": "...", "email": "user@example.com", "role": "user" } }`,
+          codes: ["200", "401", "400"],
+          example: `curl -X POST http://localhost:3000/api/home/login \\
   -H "Content-Type: application/json" \\
   -d '{
     "email": "user@example.com",
     "password": "password123"
   }'` },
-    { method:"POST", path:"/home/logout", desc:"Đăng xuất phiên hiện tại", auth:true, codes:["200","401"],
-      example:`curl -X POST http://localhost:3000/api/home/logout \\
+        {
+          method: "POST", path: "/home/logout", desc: "Đăng xuất phiên hiện tại", auth: true, codes: ["200", "401"],
+          example: `curl -X POST http://localhost:3000/api/home/logout \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-  ],
-  "users-eps": [
-    { method:"POST", path:"/users/register", desc:"Đăng ký tài khoản mới", auth:false,
-      fields:[
-        {name:"fullName", type:"string",  required:true,  desc:"Họ và tên đầy đủ"},
-        {name:"email",    type:"string",  required:true,  desc:"Địa chỉ email (duy nhất)"},
-        {name:"password", type:"string",  required:true,  desc:"Mật khẩu (được mã hóa bcrypt)"},
       ],
-      response:`{ "success": true, "user": { "_id": "...", "fullName": "John Doe", "email": "john@example.com" } }`,
-      codes:["201","400"],
-      example:`curl -X POST http://localhost:3000/api/users/register \\
+      "users-eps": [
+        {
+          method: "POST", path: "/users/register", desc: "Đăng ký tài khoản mới", auth: false,
+          fields: [
+            { name: "fullName", type: "string", required: true, desc: "Họ và tên đầy đủ" },
+            { name: "email", type: "string", required: true, desc: "Địa chỉ email (duy nhất)" },
+            { name: "password", type: "string", required: true, desc: "Mật khẩu (được mã hóa bcrypt)" },
+          ],
+          response: `{ "success": true, "user": { "_id": "...", "fullName": "John Doe", "email": "john@example.com" } }`,
+          codes: ["201", "400"],
+          example: `curl -X POST http://localhost:3000/api/users/register \\
   -H "Content-Type: application/json" \\
   -d '{
     "fullName": "Nguyen Van A",
     "email": "nguyenvana@example.com",
     "password": "password123",
   }'` },
-    { method:"GET", path:"/users/get-all-users", desc:"Lấy danh sách tất cả người dùng", auth:true, admin:true,
-      params:[{name:"page",desc:"Số trang (tuỳ chọn)"},{name:"limit",desc:"Số bản ghi mỗi trang (tuỳ chọn)"}],
-      codes:["200","401","403"],
-      example:`curl -X GET "http://localhost:3000/api/users/get-all-users?page=1&limit=10" \\
+        {
+          method: "GET", path: "/users/get-all-users", desc: "Lấy danh sách tất cả người dùng", auth: true, admin: true,
+          params: [{ name: "page", desc: "Số trang (tuỳ chọn)" }, { name: "limit", desc: "Số bản ghi mỗi trang (tuỳ chọn)" }],
+          codes: ["200", "401", "403"],
+          example: `curl -X GET "http://localhost:3000/api/users/get-all-users?page=1&limit=10" \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"GET", path:"/users/get-user-by-id/:_id", desc:"Lấy người dùng theo ID", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"}],
-      codes:["200","404","401"],
-      example:`curl -X GET http://localhost:3000/api/users/get-user-by-id/64a1b2c3d4e5f6789abc1234 \\
+        {
+          method: "GET", path: "/users/get-user-by-id/:_id", desc: "Lấy người dùng theo ID", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          codes: ["200", "404", "401"],
+          example: `curl -X GET http://localhost:3000/api/users/get-user-by-id/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"PUT", path:"/users/update-user/:_id", desc:"Cập nhật thông tin người dùng", auth:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"}],
-      fields:[
-        {name:"fullName", type:"string",  required:false, desc:"Họ và tên mới"},
-        {name:"phone",    type:"string",  required:false, desc:"Số điện thoại mới"},
-        {name:"avatar",   type:"string",  required:false, desc:"URL ảnh đại diện"},
-      ],
-      codes:["200","400","404","401"],
-      example:`curl -X PUT http://localhost:3000/api/users/update-user/64a1b2c3d4e5f6789abc1234 \\
+        {
+          method: "PUT", path: "/users/update-user/:_id", desc: "Cập nhật thông tin người dùng", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          fields: [
+            { name: "fullName", type: "string", required: false, desc: "Họ và tên mới" },
+            { name: "phone", type: "string", required: false, desc: "Số điện thoại mới" },
+            { name: "avatar", type: "string", required: false, desc: "URL ảnh đại diện" },
+          ],
+          codes: ["200", "400", "404", "401"],
+          example: `curl -X PUT http://localhost:3000/api/users/update-user/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -448,33 +714,37 @@ const sections = {
     "phone": "0987654321",
     "avatar": "https://example.com/avatar.jpg"
   }'` },
-    { method:"DELETE", path:"/users/lock-user/:_id", desc:"Khóa tài khoản người dùng", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"}],
-      codes:["200","404","401"],
-      example:`curl -X DELETE http://localhost:3000/api/users/lock-user/64a1b2c3d4e5f6789abc1234 \\
+        {
+          method: "DELETE", path: "/users/lock-user/:_id", desc: "Khóa tài khoản người dùng", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          codes: ["200", "404", "401"],
+          example: `curl -X DELETE http://localhost:3000/api/users/lock-user/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"PATCH", path:"/users/unlock-user/:_id", desc:"Mở khóa tài khoản người dùng", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"}],
-      codes:["200","404","401"],
-      example:`curl -X PATCH http://localhost:3000/api/users/unlock-user/64a1b2c3d4e5f6789abc1234 \\
+        {
+          method: "PATCH", path: "/users/unlock-user/:_id", desc: "Mở khóa tài khoản người dùng", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          codes: ["200", "404", "401"],
+          example: `curl -X PATCH http://localhost:3000/api/users/unlock-user/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"DELETE", path:"/users/delete-user/:_id", desc:"Xóa vĩnh viễn người dùng", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"}],
-      codes:["200","404","401"],
-      example:`curl -X DELETE http://localhost:3000/api/users/delete-user/64a1b2c3d4e5f6789abc1234 \\
+        {
+          method: "DELETE", path: "/users/delete-user/:_id", desc: "Xóa vĩnh viễn người dùng", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          codes: ["200", "404", "401"],
+          example: `curl -X DELETE http://localhost:3000/api/users/delete-user/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"POST", path:"/users/update-address/:_id", desc:"Thêm địa chỉ mới", auth:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"}],
-      fields:[
-        {name:"street",    type:"string",  required:true,  desc:"Tên đường / số nhà"},
-        {name:"city",      type:"string",  required:true,  desc:"Thành phố"},
-        {name:"state",     type:"string",  required:false, desc:"Tỉnh / bang"},
-        {name:"zipCode",   type:"string",  required:false, desc:"Mã bưu chính"},
-        {name:"country",   type:"string",  required:true,  desc:"Quốc gia"},
-        {name:"isDefault", type:"boolean", required:false, desc:"Đặt làm địa chỉ mặc định"},
-      ],
-      codes:["200","400","404"],
-      example:`curl -X POST http://localhost:3000/api/users/update-address/64a1b2c3d4e5f6789abc1234 \\
+        {
+          method: "POST", path: "/users/update-address/:_id", desc: "Thêm địa chỉ mới", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          fields: [
+            { name: "street", type: "string", required: true, desc: "Tên đường / số nhà" },
+            { name: "city", type: "string", required: true, desc: "Thành phố" },
+            { name: "state", type: "string", required: false, desc: "Tỉnh / bang" },
+            { name: "zipCode", type: "string", required: false, desc: "Mã bưu chính" },
+            { name: "country", type: "string", required: true, desc: "Quốc gia" },
+            { name: "isDefault", type: "boolean", required: false, desc: "Đặt làm địa chỉ mặc định" },
+          ],
+          codes: ["200", "400", "404"],
+          example: `curl -X POST http://localhost:3000/api/users/update-address/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -485,18 +755,19 @@ const sections = {
     "country": "Vietnam",
     "isDefault": true
   }'` },
-    { method:"PUT", path:"/users/edit-address/:_id/:address_id", desc:"Sửa địa chỉ hiện có", auth:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"},{name:":address_id",desc:"ID địa chỉ cần sửa"}],
-      fields:[
-        {name:"street",    type:"string",  required:false, desc:"Tên đường / số nhà"},
-        {name:"city",      type:"string",  required:false, desc:"Thành phố"},
-        {name:"state",     type:"string",  required:false, desc:"Tỉnh / bang"},
-        {name:"zipCode",   type:"string",  required:false, desc:"Mã bưu chính"},
-        {name:"country",   type:"string",  required:false, desc:"Quốc gia"},
-        {name:"isDefault", type:"boolean", required:false, desc:"Đặt làm địa chỉ mặc định"},
-      ],
-      codes:["200","400","404"],
-      example:`curl -X PUT http://localhost:3000/api/users/edit-address/64a1b2c3d4e5f6789abc1234/64b9c3d4e5f6789abc5678ef \\
+        {
+          method: "PUT", path: "/users/edit-address/:_id/:address_id", desc: "Sửa địa chỉ hiện có", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }, { name: ":address_id", desc: "ID địa chỉ cần sửa" }],
+          fields: [
+            { name: "street", type: "string", required: false, desc: "Tên đường / số nhà" },
+            { name: "city", type: "string", required: false, desc: "Thành phố" },
+            { name: "state", type: "string", required: false, desc: "Tỉnh / bang" },
+            { name: "zipCode", type: "string", required: false, desc: "Mã bưu chính" },
+            { name: "country", type: "string", required: false, desc: "Quốc gia" },
+            { name: "isDefault", type: "boolean", required: false, desc: "Đặt làm địa chỉ mặc định" },
+          ],
+          codes: ["200", "400", "404"],
+          example: `curl -X PUT http://localhost:3000/api/users/edit-address/64a1b2c3d4e5f6789abc1234/64b9c3d4e5f6789abc5678ef \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -504,26 +775,28 @@ const sections = {
     "city": "Ha Noi",
     "isDefault": false
   }'` },
-    { method:"DELETE", path:"/users/delete-address/:_id/:address_id", desc:"Xóa địa chỉ", auth:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của người dùng"},{name:":address_id",desc:"ID địa chỉ cần xóa"}],
-      codes:["200","404"],
-      example:`curl -X DELETE http://localhost:3000/api/users/delete-address/64a1b2c3d4e5f6789abc1234/64b9c3d4e5f6789abc5678ef \\
+        {
+          method: "DELETE", path: "/users/delete-address/:_id/:address_id", desc: "Xóa địa chỉ", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }, { name: ":address_id", desc: "ID địa chỉ cần xóa" }],
+          codes: ["200", "404"],
+          example: `curl -X DELETE http://localhost:3000/api/users/delete-address/64a1b2c3d4e5f6789abc1234/64b9c3d4e5f6789abc5678ef \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-  ],
-  "products-eps": [
-    { method:"POST", path:"/products/create-product", desc:"Tạo sản phẩm mới", auth:true,
-      fields:[
-        {name:"name",        type:"string",   required:true,  desc:"Tên sản phẩm"},
-        {name:"description", type:"string",   required:false, desc:"Mô tả sản phẩm"},
-        {name:"price",       type:"number",   required:true,  desc:"Giá bán"},
-        {name:"quantity",    type:"number",   required:true,  desc:"Số lượng tồn kho"},
-        {name:"brand",       type:"ObjectId", required:true,  desc:"ID thương hiệu"},
-        {name:"category",    type:"ObjectId", required:true,  desc:"ID danh mục"},
-        {name:"images",      type:"string[]", required:false, desc:"Danh sách URL ảnh"},
       ],
-      response:`{ "success": true, "product": { "_id": "...", "name": "Product Name", "price": 99.99, "quantity": 100 } }`,
-      codes:["201","400","401"],
-      example:`curl -X POST http://localhost:3000/api/products/create-product \\
+      "products-eps": [
+        {
+          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới", auth: true,
+          fields: [
+            { name: "name", type: "string", required: true, desc: "Tên sản phẩm" },
+            { name: "description", type: "string", required: false, desc: "Mô tả sản phẩm" },
+            { name: "price", type: "number", required: true, desc: "Giá bán" },
+            { name: "quantity", type: "number", required: true, desc: "Số lượng tồn kho" },
+            { name: "brand", type: "ObjectId", required: true, desc: "ID thương hiệu" },
+            { name: "category", type: "ObjectId", required: true, desc: "ID danh mục" },
+            { name: "images", type: "string[]", required: false, desc: "Danh sách URL ảnh" },
+          ],
+          response: `{ "success": true, "product": { "_id": "...", "name": "Product Name", "price": 99.99, "quantity": 100 } }`,
+          codes: ["201", "400", "401"],
+          example: `curl -X POST http://localhost:3000/api/products/create-product \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -536,18 +809,36 @@ const sections = {
     "images": ["https://example.com/img1.jpg"],
     "productId": "PRD-001"
   }'` },
-  ],
-  "brands-eps": [
-    { method:"POST", path:"/brands/create-brand", desc:"Tạo thương hiệu mới", auth:true, admin:true,
-      fields:[
-        {name:"name",        type:"string", required:true,  desc:"Tên thương hiệu (duy nhất)"},
-        {name:"description", type:"string", required:false, desc:"Mô tả thương hiệu"},
-        {name:"logo",        type:"string", required:false, desc:"URL logo thương hiệu"},
-        {name:"website",     type:"string", required:false, desc:"Website chính thức"},
       ],
-      response:`{ "success": true, "brand": { "_id": "...", "name": "Brand Name", "slug": "brand-name" } }`,
-      codes:["201","400","401","403"],
-      example:`curl -X POST http://localhost:3000/api/brands/create-brand \\
+      "products-update": [
+        {
+          method: "PUT", path: "/products/update-product/:_id", desc: "Cập nhật sản phẩm", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của sản phẩm" }],
+          fields: [
+            { name: "name", type: "string", required: false, desc: "Tên sản phẩm mới" },
+            { name: "description", type: "string", required: false, desc: "Mô tả mới" },
+            { name: "price", type: "number", required: false, desc: "Giá bán mới" },
+            { name: "quantity", type: "number", required: false, desc: "Số lượng tồn kho mới" },
+            { name: "brand", type: "ObjectId", required: false, desc: "ID thương hiệu mới" },
+            { name: "category", type: "ObjectId", required: false, desc: "ID danh mục mới" },
+            { name: "images", type: "string[]", required: false, desc: "Danh sách URL ảnh mới" },
+          ],
+          codes: ["200", "400", "404", "401"],
+          example: `curl -X PUT http://localhost:3000/api/products/update-product/64a1b2c3d4e5f6789abc3333 \\`
+        }
+      ],
+      "brands-eps": [
+        {
+          method: "POST", path: "/brands/create-brand", desc: "Tạo thương hiệu mới", auth: true, admin: true,
+          fields: [
+            { name: "name", type: "string", required: true, desc: "Tên thương hiệu (duy nhất)" },
+            { name: "description", type: "string", required: false, desc: "Mô tả thương hiệu" },
+            { name: "logo", type: "string", required: false, desc: "URL logo thương hiệu" },
+            { name: "website", type: "string", required: false, desc: "Website chính thức" },
+          ],
+          response: `{ "success": true, "brand": { "_id": "...", "name": "Brand Name", "slug": "brand-name" } }`,
+          codes: ["201", "400", "401", "403"],
+          example: `curl -X POST http://localhost:3000/api/brands/create-brand \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -556,19 +847,21 @@ const sections = {
     "logo": "https://example.com/nike-logo.png",
     "website": "https://nike.com"
   }'` },
-    { method:"GET", path:"/brands/get-all-brands", desc:"Lấy tất cả thương hiệu", auth:true, admin:true,
-      codes:["200","401","403"],
-      example:`curl -X GET http://localhost:3000/api/brands/get-all-brands \\
+        {
+          method: "GET", path: "/brands/get-all-brands", desc: "Lấy tất cả thương hiệu", auth: true, admin: true,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/brands/get-all-brands \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"PUT", path:"/brands/update-brand/:_id", desc:"Cập nhật thương hiệu", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của thương hiệu"}],
-      fields:[
-        {name:"name",        type:"string", required:false, desc:"Tên thương hiệu mới"},
-        {name:"description", type:"string", required:false, desc:"Mô tả mới"},
-        {name:"logo",        type:"string", required:false, desc:"URL logo mới"},
-      ],
-      codes:["200","400","404","401"],
-      example:`curl -X PUT http://localhost:3000/api/brands/update-brand/64a1b2c3d4e5f6789abc1111 \\
+        {
+          method: "PUT", path: "/brands/update-brand/:_id", desc: "Cập nhật thương hiệu", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của thương hiệu" }],
+          fields: [
+            { name: "name", type: "string", required: false, desc: "Tên thương hiệu mới" },
+            { name: "description", type: "string", required: false, desc: "Mô tả mới" },
+            { name: "logo", type: "string", required: false, desc: "URL logo mới" },
+          ],
+          codes: ["200", "400", "404", "401"],
+          example: `curl -X PUT http://localhost:3000/api/brands/update-brand/64a1b2c3d4e5f6789abc1111 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -576,22 +869,24 @@ const sections = {
     "description": "Cap nhat mo ta moi",
     "logo": "https://example.com/nike-new.png"
   }'` },
-    { method:"DELETE", path:"/brands/delete-brand/:_id", desc:"Xóa thương hiệu", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của thương hiệu"}],
-      codes:["200","404","401"],
-      example:`curl -X DELETE http://localhost:3000/api/brands/delete-brand/64a1b2c3d4e5f6789abc1111 \\
+        {
+          method: "DELETE", path: "/brands/delete-brand/:_id", desc: "Xóa thương hiệu", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của thương hiệu" }],
+          codes: ["200", "404", "401"],
+          example: `curl -X DELETE http://localhost:3000/api/brands/delete-brand/64a1b2c3d4e5f6789abc1111 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-  ],
-  "categories-eps": [
-    { method:"POST", path:"/categories/create-category", desc:"Tạo danh mục mới", auth:true, admin:true,
-      fields:[
-        {name:"name",        type:"string", required:true,  desc:"Tên danh mục (duy nhất)"},
-        {name:"description", type:"string", required:false, desc:"Mô tả danh mục"},
-        {name:"icon",        type:"string", required:false, desc:"URL icon danh mục"},
       ],
-      response:`{ "success": true, "category": { "_id": "...", "name": "Category Name", "slug": "category-name" } }`,
-      codes:["201","400","401","403"],
-      example:`curl -X POST http://localhost:3000/api/categories/create-category \\
+      "categories-eps": [
+        {
+          method: "POST", path: "/categories/create-category", desc: "Tạo danh mục mới", auth: true, admin: true,
+          fields: [
+            { name: "name", type: "string", required: true, desc: "Tên danh mục (duy nhất)" },
+            { name: "description", type: "string", required: false, desc: "Mô tả danh mục" },
+            { name: "icon", type: "string", required: false, desc: "URL icon danh mục" },
+          ],
+          response: `{ "success": true, "category": { "_id": "...", "name": "Category Name", "slug": "category-name" } }`,
+          codes: ["201", "400", "401", "403"],
+          example: `curl -X POST http://localhost:3000/api/categories/create-category \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -599,19 +894,21 @@ const sections = {
     "description": "Danh muc quan ao danh cho nam",
     "icon": "https://example.com/icon-men.png"
   }'` },
-    { method:"GET", path:"/categories/get-all-categories", desc:"Lấy tất cả danh mục", auth:true, admin:true,
-      codes:["200","401","403"],
-      example:`curl -X GET http://localhost:3000/api/categories/get-all-categories \\
+        {
+          method: "GET", path: "/categories/get-all-categories", desc: "Lấy tất cả danh mục", auth: true, admin: true,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/categories/get-all-categories \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-    { method:"PUT", path:"/categories/update-category/:_id", desc:"Cập nhật danh mục", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của danh mục"}],
-      fields:[
-        {name:"name",        type:"string", required:false, desc:"Tên danh mục mới"},
-        {name:"description", type:"string", required:false, desc:"Mô tả mới"},
-        {name:"icon",        type:"string", required:false, desc:"URL icon mới"},
-      ],
-      codes:["200","400","404","401"],
-      example:`curl -X PUT http://localhost:3000/api/categories/update-category/64a1b2c3d4e5f6789abc2222 \\
+        {
+          method: "PUT", path: "/categories/update-category/:_id", desc: "Cập nhật danh mục", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
+          fields: [
+            { name: "name", type: "string", required: false, desc: "Tên danh mục mới" },
+            { name: "description", type: "string", required: false, desc: "Mô tả mới" },
+            { name: "icon", type: "string", required: false, desc: "URL icon mới" },
+          ],
+          codes: ["200", "400", "404", "401"],
+          example: `curl -X PUT http://localhost:3000/api/categories/update-category/64a1b2c3d4e5f6789abc2222 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -619,38 +916,39 @@ const sections = {
     "description": "Cap nhat mo ta danh muc",
     "icon": "https://example.com/icon-new.png"
   }'` },
-    { method:"DELETE", path:"/categories/delete-category/:_id", desc:"Xóa danh mục", auth:true, admin:true,
-      params:[{name:":_id",desc:"MongoDB ObjectId của danh mục"}],
-      codes:["200","404","401"],
-      example:`curl -X DELETE http://localhost:3000/api/categories/delete-category/64a1b2c3d4e5f6789abc2222 \\
+        {
+          method: "DELETE", path: "/categories/delete-category/:_id", desc: "Xóa danh mục", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
+          codes: ["200", "404", "401"],
+          example: `curl -X DELETE http://localhost:3000/api/categories/delete-category/64a1b2c3d4e5f6789abc2222 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
-  ],
-};
+      ],
+    };
 
-function codeClass(c) {
-  if(c.startsWith("2")) return "s2xx";
-  if(c==="400") return "s400";
-  if(c==="401") return "s401";
-  if(c==="403") return "s403";
-  if(c==="404") return "s404";
-  return "s500";
-}
+    function codeClass(c) {
+      if (c.startsWith("2")) return "s2xx";
+      if (c === "400") return "s400";
+      if (c === "401") return "s401";
+      if (c === "403") return "s403";
+      if (c === "404") return "s404";
+      return "s500";
+    }
 
-function methodClass(m) {
-  return {GET:"m-get",POST:"m-post",PUT:"m-put",DELETE:"m-del",PATCH:"m-patch"}[m]||"";
-}
+    function methodClass(m) {
+      return { GET: "m-get", POST: "m-post", PUT: "m-put", DELETE: "m-del", PATCH: "m-patch" }[m] || "";
+    }
 
-function typeColor(t) {
-  if(t==="string")   return "color:#a78bfa";
-  if(t==="number")   return "color:#34d399";
-  if(t==="boolean")  return "color:#f4a942";
-  if(t==="ObjectId") return "color:#4da6ff";
-  if(t==="string[]") return "color:#a78bfa";
-  return "color:#888892";
-}
+    function typeColor(t) {
+      if (t === "string") return "color:#a78bfa";
+      if (t === "number") return "color:#34d399";
+      if (t === "boolean") return "color:#f4a942";
+      if (t === "ObjectId") return "color:#4da6ff";
+      if (t === "string[]") return "color:#a78bfa";
+      return "color:#888892";
+    }
 
-function buildFieldsTable(fields) {
-  const rows = fields.map(f => `
+    function buildFieldsTable(fields) {
+      const rows = fields.map(f => `
     <tr>
       <td style="font-family:var(--mono);font-size:12px;color:#e8e8ea;padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap">${f.name}</td>
       <td style="padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-family:var(--mono);font-size:11px;${typeColor(f.type)}">${f.type}</span></td>
@@ -662,7 +960,7 @@ function buildFieldsTable(fields) {
       <td style="padding:7px 10px;border-bottom:1px solid rgba(255,255,255,0.06);color:#888892;font-size:12px">${f.desc}</td>
     </tr>`).join("");
 
-  return `
+      return `
     <div class="dl">
       <div class="dl-label">Request body</div>
       <table style="width:100%;border-collapse:collapse;background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
@@ -677,11 +975,11 @@ function buildFieldsTable(fields) {
         <tbody>${rows}</tbody>
       </table>
     </div>`;
-}
+    }
 
-function buildExample(example) {
-  const id = 'ex-' + Math.random().toString(36).slice(2,8);
-  return `
+    function buildExample(example) {
+      const id = 'ex-' + Math.random().toString(36).slice(2, 8);
+      return `
     <div class="dl">
       <div class="dl-label" style="display:flex;align-items:center;justify-content:space-between">
         <span>Ví dụ cURL</span>
@@ -699,15 +997,15 @@ function buildExample(example) {
       </div>
       <pre id="${id}" style="color:#e8e8ea;position:relative">${example}</pre>
     </div>`;
-}
+    }
 
-Object.entries(sections).forEach(([containerId, eps]) => {
-  const container = document.getElementById(containerId);
-  if(!container) return;
-  eps.forEach((ep, i) => {
-    const card = document.createElement("div");
-    card.className = "endpoint";
-    card.innerHTML = `
+    Object.entries(sections).forEach(([containerId, eps]) => {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      eps.forEach((ep, i) => {
+        const card = document.createElement("div");
+        card.className = "endpoint";
+        card.innerHTML = `
       <div class="ep-header">
         <span class="method ${methodClass(ep.method)}">${ep.method}</span>
         <span class="ep-path">${ep.path}</span>
@@ -718,27 +1016,28 @@ Object.entries(sections).forEach(([containerId, eps]) => {
         <span class="chevron">▼</span>
       </div>
       <div class="ep-detail">
-        ${ep.params ? `<div class="dl"><div class="dl-label">Path / Query params</div><table class="params-table">${ep.params.map(p=>`<tr><td>${p.name}</td><td>${p.desc}</td></tr>`).join("")}</table></div>` : ""}
+        ${ep.params ? `<div class="dl"><div class="dl-label">Path / Query params</div><table class="params-table">${ep.params.map(p => `<tr><td>${p.name}</td><td>${p.desc}</td></tr>`).join("")}</table></div>` : ""}
         ${ep.fields ? buildFieldsTable(ep.fields) : ""}
         ${ep.response ? `<div class="dl"><div class="dl-label">Response mẫu</div><pre>${ep.response}</pre></div>` : ""}
         ${ep.example ? buildExample(ep.example) : ""}
-        <div class="dl"><div class="dl-label">Status codes</div><div class="codes">${ep.codes.map(c=>`<span class="code-pill ${codeClass(c)}">${c}</span>`).join("")}</div></div>
+        <div class="dl"><div class="dl-label">Status codes</div><div class="codes">${ep.codes.map(c => `<span class="code-pill ${codeClass(c)}">${c}</span>`).join("")}</div></div>
       </div>
     `;
-    card.querySelector(".ep-header").addEventListener("click", () => {
-      card.classList.toggle("open");
+        card.querySelector(".ep-header").addEventListener("click", () => {
+          card.classList.toggle("open");
+        });
+        container.appendChild(card);
+      });
     });
-    container.appendChild(card);
-  });
-});
 
-const navItems = document.querySelectorAll(".nav-item");
-navItems.forEach(item => {
-  item.addEventListener("click", () => {
-    navItems.forEach(n => n.classList.remove("active"));
-    item.classList.add("active");
-  });
-});
-</script>
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", () => {
+        navItems.forEach(n => n.classList.remove("active"));
+        item.classList.add("active");
+      });
+    });
+  </script>
 </body>
+
 </html>
