@@ -11,5 +11,14 @@ router.get('/health', (req, res) => {
 });
 
 router.post('/login', validationHandler.validate(validationSchemas.loginSchema), authController.login);
-router.post('/logout',auth.authMiddleware, authController.logout);
+router.post('/logout', auth.authMiddleware, authController.logout);
+router.post('/forgot-password',
+    validationHandler.validate(validationSchemas.forgotPasswordSchema),
+    authController.forgotPassword
+);
+router.post('/reset-password',
+    validationHandler.validate(validationSchemas.resetPasswordSchema),
+    authController.resetPassword
+);
+
 module.exports = router;

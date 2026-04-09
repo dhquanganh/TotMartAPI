@@ -11,6 +11,15 @@ const loginSchema = joi.object({
   password: joi.string().min(6).required()
 });
 
+const forgotPasswordSchema = joi.object({
+  email: joi.string().email().required()
+});
+
+const resetPasswordSchema = joi.object({
+  token: joi.string().required(),
+  password: joi.string().min(6).required()
+});
+
 const updateUserSchema = joi.object({
   name: joi.string().min(3).max(100).optional(),
   city: joi.string().max(100).optional(),
@@ -65,6 +74,8 @@ const categorySchema = joi.object({
 module.exports = {
   registerSchema,
   loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
   productSchema,
   updateAddressSchema,
   updateBrandSchema,
