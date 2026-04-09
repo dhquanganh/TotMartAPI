@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const sendEmail = require('../utils/sendEmail');
+const sendEmailWithBrevo = require('../utils/sendEmail');
 
 class AuthController {
     async login(req, res, next) {
@@ -103,24 +103,30 @@ class AuthController {
             const resetToken = crypto.randomBytes(20).toString('hex');
 
             user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-            user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+            user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 min
 
             await user.save();
 
+            // url frontend reset password
             const resetUrl = `https://totmartapi.onrender.com/reset-password?token=${resetToken}`;
 
-            const message = `You are receiving this email because you (or someone else) has requested the reset of a password. \n\n Please click the link to reset your password: \n\n ${resetUrl}`;
-
             try {
-                await sendEmail({
-                    email: user.email,
-                    subject: 'TotMart - Password Reset Link',
-                    message,
-                    html: `<p>You are receiving this email because you (or someone else) has requested the reset of a password.</p>
-                           <p>Please click the link below to reset your password:</p>
-                           <a href="${resetUrl}" target="_blank">Reset Password</a>
-                           <p>This link is valid for 1 hour.</p>`
-                });
+                await sendEmailWithBrevo(
+                    user.email,
+                    'TotMart - Password Reset Link',
+                    `
+    <div style="font-family: Arial, sans-serif; max-width: 450px; margin: auto;">
+        <h2 style="color: #4CAF50;">TotMart</h2>
+        <p>Xin chào,</p>
+        <p>Nhấp vào link bên dưới để đặt lại mật khẩu của bạn (có hiệu lực 10 phút):</p>
+        <p><a href="${resetUrl}" style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; display: inline-block;">Đặt lại mật khẩu</a></p>
+        <p>Hoặc copy link: ${resetUrl}</p>
+        <hr>
+        <p style="color: #999; font-size: 12px;">Nếu bạn không yêu cầu, vui lòng bỏ qua email này.</p>
+        <p style="color: #999; font-size: 12px;">TotMart - Your Trusted Shopping Partner</p>
+    </div>
+    `
+                );
 
                 res.status(200).json({
                     success: true,
@@ -132,8 +138,7 @@ class AuthController {
                 await user.save();
                 return res.status(500).json({
                     success: false,
-                    message: 'Email could not be sent',
-                    error: error.message,
+                    message: 'Email could not be sent ' + error
                 });
             }
         } catch (error) {
@@ -143,7 +148,8 @@ class AuthController {
 
     async resetPassword(req, res, next) {
         try {
-            const { token, password } = req.body;
+            const { password } = req.body;
+            const token = req.query.token;
 
             const resetPasswordToken = crypto.createHash('sha256').update(token).digest('hex');
 

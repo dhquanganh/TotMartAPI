@@ -1,34 +1,27 @@
-const nodemailer = require('nodemailer');
+
 require('dotenv').config();
 
-const sendEmail = async (options) => {
+// services/emailService.js
+const { BrevoClient } = require('@getbrevo/brevo')
+
+const brevo = new BrevoClient({
+    apiKey: process.env.BREVO_API_KEY,
+    timeoutInSeconds: 60
+})
+const sendEmailWithBrevo = async (toEmail, subject, htmlContent) => {
     try {
-        // Create a transporter using your email service details
-        const transporter = nodemailer.createTransport({
-            service: 'gmail', // Standard configuration for Gmail
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
+        const data = await brevo.transactionalEmails.sendTransacEmail({
+            subject: subject,
+            htmlContent: htmlContent,
+            sender: { name: "TotMart", email: process.env.FROM_EMAIL },
+            to: [{ email: toEmail }]
         });
-
-        // Define email options
-        const mailOptions = {
-            from: `TotMart <${process.env.EMAIL_USER}>`,
-            to: options.email,
-            subject: options.subject,
-            text: options.message,
-            // You can also provide an html property if you want HTML emails
-            html: options.html
-        };
-
-        // Send email
-        await transporter.sendMail(mailOptions);
-        console.log(`Email successfully sent to ${options.email}`);
+        console.log('Email sent successfully. MessageId: ' + data.messageId);
+        return { success: true, messageId: data.messageId };
     } catch (error) {
         console.error('Error sending email:', error);
-        throw new Error('Email could not be sent.');
+        return { success: false, error: error.message };
     }
 };
 
-module.exports = sendEmail;
+module.exports = sendEmailWithBrevo;

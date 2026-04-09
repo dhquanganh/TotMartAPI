@@ -16,7 +16,6 @@ const forgotPasswordSchema = joi.object({
 });
 
 const resetPasswordSchema = joi.object({
-  token: joi.string().required(),
   password: joi.string().min(6).required()
 });
 
