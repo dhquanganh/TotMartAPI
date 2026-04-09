@@ -662,6 +662,31 @@
           method: "POST", path: "/home/logout", desc: "Đăng xuất phiên hiện tại", auth: true, codes: ["200", "401"],
           example: `curl -X POST http://localhost:3000/api/home/logout \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "POST", path: "/home/forgot-password", desc: "Quên mật khẩu, gửi email mã phục hồi", auth: false,
+          fields: [
+            { name: "email", type: "string", required: true, desc: "Địa chỉ email đã đăng ký" },
+          ],
+          response: `{ "success": true, "message": "Reset password email sent successfully" }`,
+          codes: ["200", "400", "404", "500"],
+          example: `curl -X POST http://localhost:3000/api/home/forgot-password \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "email": "user@example.com"
+  }'` },
+        {
+          method: "POST", path: "/home/reset-password", desc: "Đặt lại mật khẩu với token", auth: false,
+          params: [{ name: "token", desc: "Token phục hồi lấy từ email (Truyền qua Query)" }],
+          fields: [
+            { name: "password", type: "string", required: true, desc: "Mật khẩu mới (Tối thiểu 6 ký tự)" },
+          ],
+          response: `{ "success": true, "message": "Password updated successfully" }`,
+          codes: ["200", "400"],
+          example: `curl -X POST "http://localhost:3000/api/home/reset-password?token=YOUR_RESET_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "password": "newpassword123"
+  }'` },
       ],
       "users-eps": [
         {
