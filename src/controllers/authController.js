@@ -132,7 +132,8 @@ class AuthController {
                 await user.save();
                 return res.status(500).json({
                     success: false,
-                    message: 'Email could not be sent'
+                    message: 'Email could not be sent',
+                    error: error.message,
                 });
             }
         } catch (error) {
