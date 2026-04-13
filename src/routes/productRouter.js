@@ -5,9 +5,13 @@ const productController = require('../controllers/productController');
 const authMiddleware = require('../middleware/authMiddleware');
 const validationHandler = require('../middleware/validationHandler');
 const validationSchemas = require('../middleware/validationSchemas');
+const multer = require('multer')
+const storage = multer.memoryStorage()
+const upload = multer({ storage })
 
-router.post("/create-product/", 
-    validationHandler.validate(validationSchemas.productSchema), 
+router.post("/create-product/",
+    upload.array("images", 10),
+    validationHandler.validate(validationSchemas.productSchema),
     authMiddleware.authMiddleware, productController.createProduct
 );
 router.get("/get-all-products/",
@@ -16,6 +20,7 @@ router.get("/get-all-products/",
     productController.getAllProducts
 );
 router.put("/update-product/:_id",
+    upload.array("images", 10),
     validationHandler.validate(validationSchemas.productUpdateSchema),
     authMiddleware.authMiddleware,
     authMiddleware.adminMiddleware,

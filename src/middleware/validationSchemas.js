@@ -38,9 +38,18 @@ const productSchema = joi.object({
   category: joi.string().max(100).required(),
   stock: joi.number().integer().min(0).required(),
   details: joi.string().max(1000).optional(),
-  brand: joi.string().max(100).required(),
-  images: joi.array().items(joi.string().uri()).min(1).required()
+  brand: joi.string().max(100).required()
 })
+
+const productUpdateSchema = joi.object({
+  name: joi.string().min(3).max(100).optional(),
+  description: joi.string().max(500).optional(),
+  price: joi.number().positive().optional(),
+  category: joi.string().max(100).optional(),
+  stock: joi.number().integer().min(0).optional(),
+  details: joi.string().max(1000).optional(),
+  brand: joi.string().max(100).optional()
+}).min(1)
 
 const updateAddressSchema = joi.object({
   country: joi.string().max(100).optional(),
@@ -86,6 +95,7 @@ module.exports = {
   forgotPasswordSchema,
   resetPasswordSchema,
   productSchema,
+  productUpdateSchema,
   updateAddressSchema,
   updateBrandSchema,
   brandSchema,
