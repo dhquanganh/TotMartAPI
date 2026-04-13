@@ -540,6 +540,9 @@
         <a class="nav-item" href="#categories">
           <span class="nav-dot" style="background:#ff6b6b"></span> Danh mục
         </a>
+        <a class="nav-item" href="#boxes">
+          <span class="nav-dot" style="background:#f4a942"></span> Box sản phẩm
+        </a>
       </div>
       <div class="nav-section">
         <div class="nav-label">Khác</div>
@@ -590,6 +593,12 @@
       <div class="section" id="categories">
         <div class="section-header">Danh mục</div>
         <div id="categories-eps"></div>
+      </div>
+
+      <!-- Boxes -->
+      <div class="section" id="boxes">
+        <div class="section-header">Hộp sản phẩm</div>
+        <div id="boxes-eps"></div>
       </div>
 
       <!-- Errors -->
@@ -804,31 +813,29 @@
       ],
       "products-eps": [
         {
-          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới", auth: true, admin: true,
+          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới (multipart/form-data)", auth: true,
           fields: [
-            { name: "name", type: "string", required: true, desc: "Tên sản phẩm" },
-            { name: "description", type: "string", required: false, desc: "Mô tả sản phẩm" },
-            { name: "price", type: "number", required: true, desc: "Giá bán" },
-            { name: "quantity", type: "number", required: true, desc: "Số lượng tồn kho" },
+            { name: "name", type: "string", required: true, desc: "Tên sản phẩm (3-100 ký tự)" },
+            { name: "description", type: "string", required: true, desc: "Mô tả sản phẩm (tối đa 500 ký tự)" },
+            { name: "price", type: "number", required: true, desc: "Giá bán (số dương)" },
+            { name: "stock", type: "number", required: true, desc: "Số lượng tồn kho" },
             { name: "brand", type: "ObjectId", required: true, desc: "ID thương hiệu" },
             { name: "category", type: "ObjectId", required: true, desc: "ID danh mục" },
-            { name: "images", type: "string[]", required: false, desc: "Danh sách URL ảnh" },
+            { name: "details", type: "string", required: false, desc: "Chi tiết sản phẩm (tối đa 1000 ký tự)" },
+            { name: "images", type: "file[]", required: false, desc: "File ảnh sản phẩm (tối đa 10 file, upload qua form-data)" },
           ],
-          response: `{ "success": true, "product": { "_id": "...", "name": "Product Name", "price": 99.99, "quantity": 100 } }`,
+          response: `{ "success": true, "message": "Product created successfully", "data": { "_id": "...", "name": "...", "price": 199000, "images": [{ "url": "...", "public_id": "..." }] } }`,
           codes: ["201", "400", "401"],
           example: `curl -X POST http://localhost:3000/api/products/create-product \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "name": "Ao Thun Nam",
-    "description": "Ao thun cotton cao cap",
-    "price": 199000,
-    "quantity": 50,
-    "brand": "64a1b2c3d4e5f6789abc1111",
-    "category": "64a1b2c3d4e5f6789abc2222",
-    "images": ["https://example.com/img1.jpg"],
-    "productId": "random-string"
-  }'` },
+  -F "name=Ao Thun Nam" \\
+  -F "description=Ao thun cotton cao cap" \\
+  -F "price=199000" \\
+  -F "stock=50" \\
+  -F "brand=64a1b2c3d4e5f6789abc1111" \\
+  -F "category=64a1b2c3d4e5f6789abc2222" \\
+  -F "images=@/path/to/image1.jpg" \\
+  -F "images=@/path/to/image2.jpg"` },
         {
           method: "GET", path: "/products/get-all-products", desc: "Lấy tất cả sản phẩm", auth: true, admin: true,
           codes: ["200", "401", "403"],
@@ -836,25 +843,24 @@
   -H "Authorization: Bearer YOUR_JWT_TOKEN"`
         },
         {
-          method: "PUT", path: "/products/update-product/:_id", desc: "Cập nhật sản phẩm", auth: true, admin: true,
+          method: "PUT", path: "/products/update-product/:_id", desc: "Cập nhật sản phẩm (multipart/form-data)", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của sản phẩm" }],
           fields: [
             { name: "name", type: "string", required: false, desc: "Tên sản phẩm mới" },
             { name: "description", type: "string", required: false, desc: "Mô tả mới" },
             { name: "price", type: "number", required: false, desc: "Giá bán mới" },
-            { name: "quantity", type: "number", required: false, desc: "Số lượng tồn kho mới" },
+            { name: "stock", type: "number", required: false, desc: "Số lượng tồn kho mới" },
             { name: "brand", type: "ObjectId", required: false, desc: "ID thương hiệu mới" },
             { name: "category", type: "ObjectId", required: false, desc: "ID danh mục mới" },
-            { name: "images", type: "string[]", required: false, desc: "Danh sách URL ảnh mới" },
+            { name: "details", type: "string", required: false, desc: "Chi tiết sản phẩm mới" },
+            { name: "images", type: "file[]", required: false, desc: "File ảnh thay thế (tối đa 10 file, upload qua form-data)" },
           ],
           codes: ["200", "400", "404", "401", "403"],
           example: `curl -X PUT http://localhost:3000/api/products/update-product/64a1b2c3d4e5f6789abc3333 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "price": 250000,
-    "quantity": 30
-  }'`
+  -F "price=250000" \\
+  -F "stock=30" \\
+  -F "images=@/path/to/new-image.jpg"`
         },
         {
           method: "DELETE", path: "/products/delete-product/:_id", desc: "Xóa sản phẩm", auth: true, admin: true,
@@ -917,19 +923,18 @@
         {
           method: "POST", path: "/categories/create-category", desc: "Tạo danh mục mới", auth: true, admin: true,
           fields: [
-            { name: "name", type: "string", required: true, desc: "Tên danh mục (duy nhất)" },
-            { name: "description", type: "string", required: false, desc: "Mô tả danh mục" },
-            { name: "icon", type: "string", required: false, desc: "URL icon danh mục" },
+            { name: "name", type: "string", required: true, desc: "Tên danh mục (duy nhất, 3-100 ký tự)" },
+            { name: "description", type: "string", required: false, desc: "Mô tả danh mục (tối đa 500 ký tự)" },
+            { name: "parentId", type: "ObjectId", required: false, desc: "ID danh mục cha (để tạo danh mục con)" },
           ],
-          response: `{ "success": true, "category": { "_id": "...", "name": "Category Name", "slug": "category-name" } }`,
+          response: `{ "success": true, "category": { "_id": "...", "name": "Category Name", "slug": "category-name", "parentId": null } }`,
           codes: ["201", "400", "401", "403"],
           example: `curl -X POST http://localhost:3000/api/categories/create-category \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
     "name": "Quan Ao Nam",
-    "description": "Danh muc quan ao danh cho nam",
-    "icon": "https://example.com/icon-men.png"
+    "description": "Danh muc quan ao danh cho nam"
   }'` },
         {
           method: "GET", path: "/categories/get-all-categories", desc: "Lấy tất cả danh mục", auth: true, admin: true,
@@ -942,22 +947,80 @@
           fields: [
             { name: "name", type: "string", required: false, desc: "Tên danh mục mới" },
             { name: "description", type: "string", required: false, desc: "Mô tả mới" },
-            { name: "icon", type: "string", required: false, desc: "URL icon mới" },
+            { name: "parentId", type: "ObjectId", required: false, desc: "ID danh mục cha mới" },
           ],
           codes: ["200", "400", "404", "401"],
           example: `curl -X PUT http://localhost:3000/api/categories/update-category/64a1b2c3d4e5f6789abc2222 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "name": "Quan Ao Nam & Nu",
+    "name": "Quan Ao Nam \u0026 Nu",
     "description": "Cap nhat mo ta danh muc",
-    "icon": "https://example.com/icon-new.png"
+    "parentId": "64a1b2c3d4e5f6789abc1111"
   }'` },
         {
           method: "DELETE", path: "/categories/delete-category/:_id", desc: "Xóa danh mục", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
           codes: ["200", "404", "401"],
           example: `curl -X DELETE http://localhost:3000/api/categories/delete-category/64a1b2c3d4e5f6789abc2222 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+      ],
+      "boxes-eps": [
+        {
+          method: "POST", path: "/boxes/create-box", desc: "Tạo hộp sản phẩm mới (multipart/form-data)", auth: true, admin: true,
+          fields: [
+            { name: "name", type: "string", required: true, desc: "Tên hộp (3-100 ký tự)" },
+            { name: "description", type: "string", required: true, desc: "Mô tả hộp (tối đa 500 ký tự)" },
+            { name: "products", type: "ObjectId[]", required: true, desc: "Mảng ID sản phẩm trong hộp" },
+            { name: "stock", type: "number", required: true, desc: "Số lượng tồn kho" },
+            { name: "isGift", type: "boolean", required: false, desc: "Là hộp quà tặng (mặc định: false)" },
+            { name: "images", type: "file[]", required: false, desc: "File ảnh hộp sản phẩm (tối đa 10 file, upload qua form-data)" },
+          ],
+          response: `{ "success": true, "message": "Box created successfully", "data": { "_id": "...", "name": "...", "totalItem": 3, "value": 500000, "images": [{ "url": "...", "public_id": "..." }] } }`,
+          codes: ["201", "400", "401", "403"],
+          example: `curl -X POST http://localhost:3000/api/boxes/create-box \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -F "name=Combo Tet" \\
+  -F "description=Hop qua Tet 2026" \\
+  -F "products[]=64a1b2c3d4e5f6789abc1111" \\
+  -F "products[]=64a1b2c3d4e5f6789abc2222" \\
+  -F "stock=100" \\
+  -F "isGift=true" \\
+  -F "images=@/path/to/box-img1.jpg" \\
+  -F "images=@/path/to/box-img2.jpg"` },
+        {
+          method: "GET", path: "/boxes/get-all-box", desc: "Lấy tất cả hộp sản phẩm", auth: true, admin: true,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/boxes/get-all-box \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "GET", path: "/boxes/get-box-by-id/:_id", desc: "Lấy hộp sản phẩm theo ID", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của hộp sản phẩm" }],
+          codes: ["200", "404", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/boxes/get-box-by-id/64a1b2c3d4e5f6789abc3333 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "PUT", path: "/boxes/update-box/:_id", desc: "Cập nhật hộp sản phẩm (multipart/form-data)", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của hộp sản phẩm" }],
+          fields: [
+            { name: "name", type: "string", required: false, desc: "Tên hộp mới" },
+            { name: "description", type: "string", required: false, desc: "Mô tả mới" },
+            { name: "products", type: "ObjectId[]", required: false, desc: "Mảng ID sản phẩm mới" },
+            { name: "stock", type: "number", required: false, desc: "Số lượng tồn kho mới" },
+            { name: "isGift", type: "boolean", required: false, desc: "Cập nhật trạng thái quà tặng" },
+            { name: "images", type: "file[]", required: false, desc: "File ảnh thay thế (tối đa 10 file)" },
+          ],
+          codes: ["200", "400", "404", "401", "403"],
+          example: `curl -X PUT http://localhost:3000/api/boxes/update-box/64a1b2c3d4e5f6789abc3333 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -F "name=Combo Tet Updated" \\
+  -F "stock=50" \\
+  -F "images=@/path/to/new-box-img.jpg"` },
+        {
+          method: "DELETE", path: "/boxes/delete-box/:_id", desc: "Xóa hộp sản phẩm", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của hộp sản phẩm" }],
+          codes: ["200", "404", "401", "403"],
+          example: `curl -X DELETE http://localhost:3000/api/boxes/delete-box/64a1b2c3d4e5f6789abc3333 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
       ],
     };
@@ -981,6 +1044,8 @@
       if (t === "boolean") return "color:#f4a942";
       if (t === "ObjectId") return "color:#4da6ff";
       if (t === "string[]") return "color:#a78bfa";
+      if (t === "ObjectId[]") return "color:#4da6ff";
+      if (t === "file[]") return "color:#ff6b6b";
       return "color:#888892";
     }
 

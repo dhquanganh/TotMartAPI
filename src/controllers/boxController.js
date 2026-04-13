@@ -121,11 +121,19 @@ class BoxController {
                 }
             }
             box.name = validated.name || box.name;
-            box.description = validated.description || box.description;
+            box.descriptions = validated.descriptions || box.descriptions;
             box.products = validated.products || box.products;
             box.stock = validated.stock || box.stock;
             box.isGift = validated.isGift || box.isGift;
             box.totalItem = validated.products.length;
+            if (validated.productId) {
+                validated.productId.forEach(product => {
+                    box.products.push({
+                        productId: product._id,
+                        quantity: product.quantity
+                    });
+                });
+            }
             box.value = validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
             await box.save();
             res.status(200).json({

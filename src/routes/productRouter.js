@@ -11,8 +11,10 @@ const upload = multer({ storage })
 
 router.post("/create-product/",
     upload.array("images", 10),
+    authMiddleware.authMiddleware,
+    authMiddleware.adminMiddleware,
     validationHandler.validate(validationSchemas.productSchema),
-    authMiddleware.authMiddleware, productController.createProduct
+    productController.createProduct
 );
 router.get("/get-all-products/",
     authMiddleware.authMiddleware,
