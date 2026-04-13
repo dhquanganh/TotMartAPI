@@ -67,7 +67,7 @@ const updateBrandSchema = joi.object({
 const categorySchema = joi.object({
   name: joi.string().min(3).max(100).required(),
   description: joi.string().max(500).optional(),
-  level: joi.number().integer().required(),
+  parentId: joi.string().hex().length(24).optional()
 })
 
 const createBoxSchema = joi.object({
