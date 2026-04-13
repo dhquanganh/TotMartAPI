@@ -12,11 +12,16 @@ cloudinary.config({
 });
 
 class ProductController {
-    async createProduct(req, res, next){
+    async createProduct(req, res, next) {
         try {
             const validated = req.validatedBody;
+            const brand = await brandModel.findById(validated.brand);
+            const category = await categoryModel.findById(validated.category);
+
             const newProduct = new productModel(validated);
-            newProduct.productId = randomString.generate({ length: 9});
+            newProduct.productId = randomString.generate({ length: 9 });
+            newProduct.brand = brand._id;
+            newProduct.category = category._id;
             let result = [];
             const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             if (req.files && req.files.length > 0) {
@@ -40,7 +45,7 @@ class ProductController {
 
                 result = uploadResults;
             }
-            newProduct.images = result; 
+            newProduct.images = result;
             await newProduct.save();
             res.status(201).json({
                 success: true,
@@ -52,7 +57,7 @@ class ProductController {
         }
     }
 
-    async getAllProducts(req, res, next){
+    async getAllProducts(req, res, next) {
         try {
             const products = await productModel.find().populate('brand').populate('category');
             res.status(200).json({
@@ -65,7 +70,7 @@ class ProductController {
         }
     }
 
-    async updateProduct(req, res, next){
+    async updateProduct(req, res, next) {
         try {
             const { _id } = req.params;
             const validated = req.validatedBody;
@@ -114,10 +119,10 @@ class ProductController {
         }
     }
 
-    async deleteProduct(req, res, next){
+    async deleteProduct(req, res, next) {
         try {
             const foundProduct = await productModel.findById(req.params._id);
-            if(foundProduct && foundProduct.images && foundProduct.images.length > 0){
+            if (foundProduct && foundProduct.images && foundProduct.images.length > 0) {
                 const folderName = "products/" + foundProduct.name.trim().toLowerCase().replace(/\s+/g, '-');
                 await cloudinary.api.delete_resources_by_prefix(folderName);
                 await cloudinary.api.delete_folder(folderName);

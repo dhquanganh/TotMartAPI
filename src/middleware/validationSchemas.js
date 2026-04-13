@@ -70,6 +70,16 @@ const categorySchema = joi.object({
   level: joi.number().integer().required(),
 })
 
+const createBoxSchema = joi.object({
+  name: joi.string().min(3).max(100).required(),
+  description: joi.string().max(500).required(),
+  products: joi.array().items(joi.string().hex().length(24)).min(1).required(),
+  stock: joi.number().integer().min(0).required(),
+  images: joi.array().items(joi.string().uri()).min(1).required(),
+  isGift: joi.boolean().default(false)
+})
+
+
 module.exports = {
   registerSchema,
   loginSchema,
@@ -81,5 +91,6 @@ module.exports = {
   brandSchema,
   updateUserSchema,
   idParamSchema,
-  categorySchema
+  categorySchema,
+  createBoxSchema
 };
