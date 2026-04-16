@@ -3,6 +3,7 @@ const brandModel = require('../models/Brand');
 const categoryModel = require('../models/Category');
 const cloudinary = require('cloudinary').v2;
 const randomString = require('randomstring');
+require('dotenv').config();
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
