@@ -1,6 +1,7 @@
 const app = require('./app');
 const { connectDB } = require('./config/database');
 const config = require('./config/environment');
+const { startDeliveryScheduler } = require('./jobs/deliveryScheduler');
 
 // Create server
 const server = async () => {
@@ -13,6 +14,8 @@ const server = async () => {
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}/api/home/health`);
       console.log(`Environment: ${config.nodeEnv}`);
+
+      startDeliveryScheduler();
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);

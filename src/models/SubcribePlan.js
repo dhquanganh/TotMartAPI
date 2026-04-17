@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 
 const subcribePlanSchema = new mongoose.Schema({
+    name: { type: String, require: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", require: true },
     planType: { type: String, enum: ['1_month', '3_month', '6_month', '12_month'], require: true },
 
@@ -12,7 +13,7 @@ const subcribePlanSchema = new mongoose.Schema({
     remainDeliveries: { type: Number, require: true },
 
     nextDeliveries: { type: Date, require: true },
-    lastDeliveries: { type: Date },
+    lastDeliveries: { type: Date, default: null },
 
     status: { type: String, enum: ['active', 'cancelled', 'expired'], default: 'active' },
 
@@ -38,7 +39,7 @@ const subcribePlanSchema = new mongoose.Schema({
         }
     ]
 }, {
-    timestamp: true
+    timestamps: true
 })
 
 module.exports = mongoose.model('SubscribePlan', subcribePlanSchema);

@@ -88,6 +88,28 @@ const createBoxSchema = joi.object({
   isGift: joi.boolean().default(false)
 })
 
+const createSubcribePlanSchema = joi.object({
+  name: joi.string().min(2).max(100).required(),
+  planType: joi.string().valid('1_month', '3_month', '6_month', '12_month').required(),
+  totalDeliveries: joi.number().integer().min(1).required(),
+  shippingAddress: joi.object({
+    address: joi.string().max(255).required(),
+    district: joi.string().max(100).required(),
+    city: joi.string().max(100).required(),
+    country: joi.string().max(100).required(),
+    zipCode: joi.string().max(10).required(),
+    phone: joi.string().pattern(/^[0-9()+\s-]{7,20}$/).required()
+  }).required(),
+  price: joi.number().positive().required(),
+  oldPrice: joi.number().positive().required(),
+  discount: joi.number().positive().required(),
+  discountPercent: joi.number().positive().required(),
+  gift: joi.array().items(joi.object({
+    boxId: joi.string().hex().length(24).required(),
+    quantity: joi.number().integer().min(1).required()
+  })).required()
+})
+
 
 module.exports = {
   registerSchema,
@@ -102,5 +124,6 @@ module.exports = {
   updateUserSchema,
   idParamSchema,
   categorySchema,
-  createBoxSchema
+  createBoxSchema,
+  createSubcribePlanSchema
 };

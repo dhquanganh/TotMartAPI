@@ -1,5 +1,6 @@
 const boxModel = require('../models/Box')
 const cloudinary = require('cloudinary').v2
+const productModel = require('../models/Product')
 require('dotenv').config()
 
 cloudinary.config({
@@ -17,7 +18,8 @@ class BoxController {
             newBox.products = validated.products.map(product => {
                 return {
                     product: product._id,
-                    quantity: product.quantity
+                    quantity: product.quantity,
+                    name: product.name
                 }
             });
             newBox.validFrom = new Date(validated.validFrom);
@@ -62,10 +64,21 @@ class BoxController {
     async getAllBoxes(req, res, next) {
         try {
             const boxes = await boxModel.find();
+            const products = []
+            boxes.forEach(async (box) => {
+                box.products.forEach(async (product) => {
+                    let prd = await productModel.findById(product.productId);
+                    products.push({
+                        product: prd,
+                        quantity: product.quantity,
+                    });
+                })
+            })
             res.status(200).json({
                 success: true,
                 message: 'Boxes retrieved successfully',
-                data: boxes
+                data: boxes,
+                products: products
             });
         } catch (error) {
             next(error);
@@ -75,10 +88,20 @@ class BoxController {
     async getBoxById(req, res, next) {
         try {
             const box = await boxModel.findById(req.params._id);
+            const products = [];
+            box.products.forEach(async (product) => {
+                let prd = await productModel.findById(product.productId);
+                products.push({
+                    product: prd,
+                    quantity: product.quantity
+                });
+            })
+            box.products = products;
             res.status(200).json({
                 success: true,
                 message: 'Box retrieved successfully',
-                data: box
+                data: box,
+                products: products
             });
         } catch (error) {
             next(error);

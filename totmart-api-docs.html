@@ -543,6 +543,9 @@
         <a class="nav-item" href="#boxes">
           <span class="nav-dot" style="background:#f4a942"></span> Box sản phẩm
         </a>
+        <a class="nav-item" href="#subcribe-plans">
+          <span class="nav-dot" style="background:#3dd68c"></span> Gói đăng ký
+        </a>
       </div>
       <div class="nav-section">
         <div class="nav-label">Khác</div>
@@ -599,6 +602,12 @@
       <div class="section" id="boxes">
         <div class="section-header">Hộp sản phẩm</div>
         <div id="boxes-eps"></div>
+      </div>
+
+      <!-- Subscribe Plans -->
+      <div class="section" id="subcribe-plans">
+        <div class="section-header">Gói đăng ký</div>
+        <div id="subcribe-plans-eps"></div>
       </div>
 
       <!-- Errors -->
@@ -868,6 +877,14 @@
           codes: ["200", "404", "401", "403"],
           example: `curl -X DELETE http://localhost:3000/api/products/delete-product/64a1b2c3d4e5f6789abc3333 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"`
+        },
+        {
+          method: "GET", path: "/products/get-products-by-id/:_id", desc: "Lấy sản phẩm theo ID", auth: true, admin: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của sản phẩm" }],
+          response: `{ "success": true, "message": "Product retrieved successfully", "data": { "_id": "...", "name": "...", "price": 199000, "brand": { ... }, "category": { ... }, "images": [...] } }`,
+          codes: ["200", "404", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/products/get-products-by-id/64a1b2c3d4e5f6789abc3333 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"`
         }
       ],
       "brands-eps": [
@@ -1023,6 +1040,86 @@
           example: `curl -X DELETE http://localhost:3000/api/boxes/delete-box/64a1b2c3d4e5f6789abc3333 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
       ],
+      "subcribe-plans-eps": [
+        {
+          method: "POST", path: "/subcribe-plans/create-subcribe-plan", desc: "Tạo gói đăng ký mới", auth: true, admin: true,
+          fields: [
+            { name: "name", type: "string", required: true, desc: "Tên gói đăng ký" },
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng đăng ký" },
+            { name: "planType", type: "string", required: true, desc: "Loại gói: 1_month, 3_month, 6_month, 12_month" },
+            { name: "totalDeliveries", type: "number", required: true, desc: "Tổng số lần giao hàng" },
+            { name: "shippingAddress", type: "object", required: true, desc: "Địa chỉ giao hàng (address, district, city, country, zipCode, phone)" },
+            { name: "price", type: "number", required: true, desc: "Giá gói đăng ký" },
+            { name: "oldPrice", type: "number", required: true, desc: "Giá gốc" },
+            { name: "discount", type: "number", required: true, desc: "Số tiền giảm giá" },
+            { name: "discountPercent", type: "number", required: true, desc: "Phần trăm giảm giá" },
+            { name: "gift", type: "object[]", required: false, desc: "Mảng quà tặng [{ boxId, quantity }]" },
+          ],
+          response: `{ "success": true, "message": "Subscribe plan created successfully", "data": { "_id": "...", "name": "...", "planType": "1_month", "status": "active", "totalDeliveries": 12, "remainDeliveries": 12, ... } }`,
+          codes: ["201", "400", "401", "403"],
+          example: `curl -X POST http://localhost:3000/api/subcribe-plans/create-subcribe-plan \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "name": "Goi 3 thang",
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "planType": "3_month",
+    "totalDeliveries": 3,
+    "shippingAddress": {
+      "address": "12 Nguyen Hue",
+      "district": "Quan 1",
+      "city": "Ho Chi Minh",
+      "country": "Vietnam",
+      "zipCode": "700000",
+      "phone": "0901234567"
+    },
+    "price": 450000,
+    "oldPrice": 500000,
+    "discount": 50000,
+    "discountPercent": 10,
+    "gift": [{ "boxId": "64a1b2c3d4e5f6789abcaaaa", "quantity": 1 }]
+  }'` },
+        {
+          method: "GET", path: "/subcribe-plans/get-all-subcribe-plans", desc: "Lấy tất cả gói đăng ký", auth: true, admin: true,
+          response: `{ "success": true, "count": 5, "data": [{ "_id": "...", "name": "...", "userId": { "name": "...", "email": "..." }, "status": "active", ... }] }`,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/subcribe-plans/get-all-subcribe-plans \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "GET", path: "/subcribe-plans/:id", desc: "Lấy gói đăng ký theo ID", auth: true, admin: true,
+          params: [{ name: ":id", desc: "MongoDB ObjectId của gói đăng ký" }],
+          response: `{ "success": true, "data": { "_id": "...", "name": "...", "planType": "3_month", "status": "active", "userId": { "name": "...", "email": "..." }, "gift": [{ "boxId": { "name": "..." }, "quantity": 1 }], ... } }`,
+          codes: ["200", "404", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/subcribe-plans/64a1b2c3d4e5f6789abcbbbb \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "GET", path: "/subcribe-plans/user/:userId", desc: "Lấy gói đăng ký theo người dùng", auth: true, admin: true,
+          params: [{ name: ":userId", desc: "MongoDB ObjectId của người dùng" }],
+          response: `{ "success": true, "count": 2, "data": [{ "_id": "...", "name": "...", "status": "active", "gift": [...], ... }] }`,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/subcribe-plans/user/64a1b2c3d4e5f6789abc1234 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "PATCH", path: "/subcribe-plans/:id/cancel", desc: "Hủy gói đăng ký cuối kỳ", auth: true, admin: true,
+          params: [{ name: ":id", desc: "MongoDB ObjectId của gói đăng ký" }],
+          response: `{ "success": true, "message": "Subscribe plan will be cancelled at end of current period", "data": { ... } }`,
+          codes: ["200", "400", "404", "401", "403"],
+          example: `curl -X PATCH http://localhost:3000/api/subcribe-plans/64a1b2c3d4e5f6789abcbbbb/cancel \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "PATCH", path: "/subcribe-plans/:id/cancel-immediately", desc: "Hủy gói đăng ký ngay lập tức", auth: true, admin: true,
+          params: [{ name: ":id", desc: "MongoDB ObjectId của gói đăng ký" }],
+          response: `{ "success": true, "message": "Subscribe plan cancelled immediately", "data": { "status": "cancelled", ... } }`,
+          codes: ["200", "400", "404", "401", "403"],
+          example: `curl -X PATCH http://localhost:3000/api/subcribe-plans/64a1b2c3d4e5f6789abcbbbb/cancel-immediately \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "POST", path: "/subcribe-plans/process-deliveries", desc: "Trigger xử lý giao hàng thủ công (admin/testing)", auth: true, admin: true,
+          response: `{ "success": true, "message": "Delivery processing triggered successfully" }`,
+          codes: ["200", "401", "403", "500"],
+          example: `curl -X POST http://localhost:3000/api/subcribe-plans/process-deliveries \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+      ],
     };
 
     function codeClass(c) {
@@ -1046,6 +1143,8 @@
       if (t === "string[]") return "color:#a78bfa";
       if (t === "ObjectId[]") return "color:#4da6ff";
       if (t === "file[]") return "color:#ff6b6b";
+      if (t === "object") return "color:#f472b6";
+      if (t === "object[]") return "color:#f472b6";
       return "color:#888892";
     }
 

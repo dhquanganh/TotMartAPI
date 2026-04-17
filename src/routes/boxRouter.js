@@ -4,8 +4,8 @@ const boxController = require('../controllers/boxController');
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-const validateHandler = require('../middlewares/validationHandler');
-const validationSchemas = require('../middlewares/validationSchemas');
+const validateHandler = require('../middleware/validationHandler');
+const validationSchemas = require('../middleware/validationSchemas');
 const authMiddleware = require('../middleware/authMiddleware');
 
 router.post('/create-box', upload.array("images", 10),

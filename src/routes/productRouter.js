@@ -34,4 +34,11 @@ router.delete("/delete-product/:_id",
     authMiddleware.adminMiddleware,
     productController.deleteProduct
 );
+
+router.get("/get-products-by-id/:_id",
+    validationHandler.validate(validationSchemas.idParamSchema, 'params'),
+    authMiddleware.authMiddleware,
+    authMiddleware.adminMiddleware,
+    productController.getProductById
+);
 module.exports = router;

@@ -141,6 +141,26 @@ class ProductController {
             next(error);
         }
     }
+
+    async getProductById(req, res, next) {
+        try {
+            const { _id } = req.params;
+            const product = await productModel.findById(_id).populate('brand').populate('category');
+            if (!product) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Product not found'
+                });
+            }
+            res.status(200).json({
+                success: true,
+                message: 'Product retrieved successfully',
+                data: product
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new ProductController();
