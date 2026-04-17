@@ -23,6 +23,8 @@ class ProductController {
             newProduct.productId = randomString.generate({ length: 9 });
             newProduct.brand = brand._id;
             newProduct.category = category._id;
+            newProduct.stock = validated.stock || 0;
+            newProduct.instock = validated.stock > 0 ? true : false;
             let result = [];
             const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             if (req.files && req.files.length > 0) {
@@ -108,6 +110,8 @@ class ProductController {
             getProduct.price = validated.price || getProduct.price;
             getProduct.brand = validated.brand || getProduct.brand;
             getProduct.category = validated.category || getProduct.category;
+            getProduct.stock = validated.stock || getProduct.stock;
+            getProduct.instock = validated.stock > 0 ? true : false;
             await getProduct.save();
             res.status(200).json({
                 success: true,
