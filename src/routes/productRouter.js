@@ -17,8 +17,6 @@ router.post("/create-product/",
     productController.createProduct
 );
 router.get("/get-all-products/",
-    authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     productController.getAllProducts
 );
 router.put("/update-product/:_id",
@@ -37,8 +35,6 @@ router.delete("/delete-product/:_id",
 
 router.get("/get-products-by-id/:_id",
     validationHandler.validate(validationSchemas.idParamSchema, 'params'),
-    authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     productController.getProductById
 );
 module.exports = router;
