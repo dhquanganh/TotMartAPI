@@ -840,7 +840,7 @@
       ],
       "products-eps": [
         {
-          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới (multipart/form-data)", auth: true,
+          method: "POST", path: "/products/create-product", desc: "Tạo sản phẩm mới (multipart/form-data)", auth: true, admin: true,
           fields: [
             { name: "name", type: "string", required: true, desc: "Tên sản phẩm (3-100 ký tự)" },
             { name: "description", type: "string", required: true, desc: "Mô tả sản phẩm (tối đa 500 ký tự)" },
@@ -852,7 +852,7 @@
             { name: "images", type: "file[]", required: false, desc: "File ảnh sản phẩm (tối đa 10 file, upload qua form-data)" },
           ],
           response: `{ "success": true, "message": "Product created successfully", "data": { "_id": "...", "name": "...", "price": 199000, "images": [{ "url": "...", "public_id": "..." }] } }`,
-          codes: ["201", "400", "401"],
+          codes: ["201", "400", "401", "403"],
           example: `curl -X POST http://localhost:3000/api/products/create-product \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -F "name=Ao Thun Nam" \\
@@ -924,10 +924,10 @@
     "website": "https://nike.com"
   }'` },
         {
-          method: "GET", path: "/brands/get-all-brands", desc: "Lấy tất cả thương hiệu", auth: true, admin: true,
-          codes: ["200", "401", "403"],
-          example: `curl -X GET http://localhost:3000/api/brands/get-all-brands \\
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+          method: "GET", path: "/brands/get-all-brands", desc: "Lấy tất cả thương hiệu", auth: false,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/brands/get-all-brands`
+        },
         {
           method: "PUT", path: "/brands/update-brand/:_id", desc: "Cập nhật thương hiệu", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của thương hiệu" }],
@@ -958,9 +958,9 @@
           fields: [
             { name: "name", type: "string", required: true, desc: "Tên danh mục (duy nhất, 3-100 ký tự)" },
             { name: "description", type: "string", required: false, desc: "Mô tả danh mục (tối đa 500 ký tự)" },
-            { name: "parentId", type: "ObjectId", required: false, desc: "ID danh mục cha (để tạo danh mục con)" },
+            { name: "childrenIds", type: "ObjectId[]", required: false, desc: "Mảng ID danh mục con" },
           ],
-          response: `{ "success": true, "category": { "_id": "...", "name": "Category Name", "slug": "category-name", "parentId": null } }`,
+          response: `{ "success": true, "message": "Category created successfully", "data": { "_id": "...", "name": "Category Name", "slug": "category-name", "childrenIds": [] } }`,
           codes: ["201", "400", "401", "403"],
           example: `curl -X POST http://localhost:3000/api/categories/create-category \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
@@ -970,17 +970,38 @@
     "description": "Danh muc quan ao danh cho nam"
   }'` },
         {
-          method: "GET", path: "/categories/get-all-categories", desc: "Lấy tất cả danh mục", auth: true, admin: true,
-          codes: ["200", "401", "403"],
-          example: `curl -X GET http://localhost:3000/api/categories/get-all-categories \\
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+          method: "GET", path: "/categories/get-all-categories", desc: "Lấy tất cả danh mục", auth: false,
+          response: `{ "success": true, "message": "Categories retrieved successfully", "data": [{ "_id": "...", "name": "...", "slug": "...", "childrenIds": [] }] }`,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/categories/get-all-categories`
+        },
+        {
+          method: "GET", path: "/categories/get-category-by-id/:_id", desc: "Lấy danh mục theo ID", auth: false,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
+          response: `{ "success": true, "message": "Category retrieved successfully", "data": { "_id": "...", "name": "...", "slug": "...", "childrenIds": [...] } }`,
+          codes: ["200", "404"],
+          example: `curl -X GET http://localhost:3000/api/categories/get-category-by-id/64a1b2c3d4e5f6789abc2222`
+        },
+        {
+          method: "GET", path: "/categories/get-products-by-category/:_id", desc: "Lấy sản phẩm theo danh mục", auth: false,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
+          response: `{ "success": true, "message": "Products retrieved successfully", "data": [{ "_id": "...", "name": "...", "price": 199000, "category": "..." }] }`,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/categories/get-products-by-category/64a1b2c3d4e5f6789abc2222`
+        },
+        {
+          method: "GET", path: "/categories/get-root-categories", desc: "Lấy tất cả danh mục gốc (không phải con của danh mục nào)", auth: false,
+          response: `{ "success": true, "message": "Root categories retrieved successfully", "data": [{ "_id": "...", "name": "...", "childrenIds": [...] }] }`,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/categories/get-root-categories`
+        },
         {
           method: "PUT", path: "/categories/update-category/:_id", desc: "Cập nhật danh mục", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
           fields: [
             { name: "name", type: "string", required: false, desc: "Tên danh mục mới" },
             { name: "description", type: "string", required: false, desc: "Mô tả mới" },
-            { name: "parentId", type: "ObjectId", required: false, desc: "ID danh mục cha mới" },
+            { name: "childrenIds", type: "ObjectId[]", required: false, desc: "Mảng ID danh mục con mới" },
           ],
           codes: ["200", "400", "404", "401"],
           example: `curl -X PUT http://localhost:3000/api/categories/update-category/64a1b2c3d4e5f6789abc2222 \\
@@ -988,13 +1009,13 @@
   -H "Content-Type: application/json" \\
   -d '{
     "name": "Quan Ao Nam \u0026 Nu",
-    "description": "Cap nhat mo ta danh muc",
-    "parentId": "64a1b2c3d4e5f6789abc1111"
+    "description": "Cap nhat mo ta danh muc"
   }'` },
         {
-          method: "DELETE", path: "/categories/delete-category/:_id", desc: "Xóa danh mục", auth: true, admin: true,
+          method: "DELETE", path: "/categories/delete-category/:_id", desc: "Xóa danh mục (nếu là con, xóa khỏi cha; nếu là cha, xóa bình thường)", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của danh mục" }],
-          codes: ["200", "404", "401"],
+          response: `{ "success": true, "message": "Category deleted successfully", "data": { "_id": "...", "name": "..." } }`,
+          codes: ["200", "400", "404", "401"],
           example: `curl -X DELETE http://localhost:3000/api/categories/delete-category/64a1b2c3d4e5f6789abc2222 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
       ],
@@ -1022,10 +1043,10 @@
   -F "images=@/path/to/box-img1.jpg" \\
   -F "images=@/path/to/box-img2.jpg"` },
         {
-          method: "GET", path: "/boxes/get-all-box", desc: "Lấy tất cả hộp sản phẩm", auth: true, admin: true,
-          codes: ["200", "401", "403"],
-          example: `curl -X GET http://localhost:3000/api/boxes/get-all-box \\
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+          method: "GET", path: "/boxes/get-all-box", desc: "Lấy tất cả hộp sản phẩm", auth: false,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/boxes/get-all-box`
+        },
         {
           method: "GET", path: "/boxes/get-box-by-id/:_id", desc: "Lấy hộp sản phẩm theo ID", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của hộp sản phẩm" }],
@@ -1116,21 +1137,21 @@
           example: `curl -X GET http://localhost:3000/api/subcribe-plans/user/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
         {
-          method: "PATCH", path: "/subcribe-plans/:id/cancel", desc: "Hủy gói đăng ký cuối kỳ", auth: true, admin: true,
+          method: "PATCH", path: "/subcribe-plans/:id/cancel", desc: "Hủy gói đăng ký cuối kỳ", auth: true, admin: false,
           params: [{ name: ":id", desc: "MongoDB ObjectId của gói đăng ký" }],
           response: `{ "success": true, "message": "Subscribe plan will be cancelled at end of current period", "data": { ... } }`,
           codes: ["200", "400", "404", "401", "403"],
           example: `curl -X PATCH http://localhost:3000/api/subcribe-plans/64a1b2c3d4e5f6789abcbbbb/cancel \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
         {
-          method: "PATCH", path: "/subcribe-plans/:id/cancel-immediately", desc: "Hủy gói đăng ký ngay lập tức", auth: true, admin: true,
+          method: "PATCH", path: "/subcribe-plans/:id/cancel-immediately", desc: "Hủy gói đăng ký ngay lập tức", auth: true, admin: false,
           params: [{ name: ":id", desc: "MongoDB ObjectId của gói đăng ký" }],
           response: `{ "success": true, "message": "Subscribe plan cancelled immediately", "data": { "status": "cancelled", ... } }`,
           codes: ["200", "400", "404", "401", "403"],
           example: `curl -X PATCH http://localhost:3000/api/subcribe-plans/64a1b2c3d4e5f6789abcbbbb/cancel-immediately \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
         {
-          method: "POST", path: "/subcribe-plans/process-deliveries", desc: "Trigger xử lý giao hàng thủ công (admin/testing)", auth: true, admin: true,
+          method: "POST", path: "/subcribe-plans/process-deliveries", desc: "Trigger xử lý giao hàng thủ công (admin/testing)", auth: true, admin: false,
           response: `{ "success": true, "message": "Delivery processing triggered successfully" }`,
           codes: ["200", "401", "403", "500"],
           example: `curl -X POST http://localhost:3000/api/subcribe-plans/process-deliveries \\

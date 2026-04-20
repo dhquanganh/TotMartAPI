@@ -15,8 +15,6 @@ router.post('/create-box', upload.array("images", 10),
     boxController.createBox
 );
 router.get('/get-all-box',
-    authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     boxController.getAllBoxes
 );
 router.get('/get-box-by-id/:_id',

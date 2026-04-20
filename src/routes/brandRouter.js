@@ -26,8 +26,6 @@ router.delete('/delete-brand/:_id',
 )
 
 router.get('/get-all-brands',
-    authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     brandController.getAllBrands
 )
 

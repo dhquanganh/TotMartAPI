@@ -26,8 +26,23 @@ router.delete('/delete-category/:_id',
     categoryController.deleteCategory
 );
 router.get('/get-all-categories',
-    authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
-    categoryController.getAllCategories);
+    categoryController.getAllCategories
+);
+router.get('/get-root-categories',
+    categoryController.getRootCategory
+);
+router.get('/get-category-by-id/:_id',
+    validationHandler.validate(validationSchemas.idParamSchema, 'params'),
+    categoryController.getCategoryById
+);
+
+router.get('/get-products-by-category/:_id',
+    validationHandler.validate(validationSchemas.idParamSchema, 'params'),
+    categoryController.getProductsByCategory
+);
+
+router.get('/get-root-category',
+    categoryController.getRootCategory
+);
 
 module.exports = router;

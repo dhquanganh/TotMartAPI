@@ -17,7 +17,6 @@ router.get('/get-all-subcribe-plans',
 
 router.post('/process-deliveries',
     authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     subcribePlanController.triggerDeliveryProcessing
 );
 
@@ -35,13 +34,11 @@ router.get('/:id',
 
 router.patch('/:id/cancel',
     authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     subcribePlanController.cancelSubcribePlan
 );
 
 router.patch('/:id/cancel-immediately',
     authMiddleware.authMiddleware,
-    authMiddleware.adminMiddleware,
     subcribePlanController.cancelImmediately
 );
 
