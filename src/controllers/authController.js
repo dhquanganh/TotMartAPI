@@ -26,14 +26,16 @@ class AuthController {
                 userId: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN });
 
             const refreshToken = jwt.sign({
                 userId: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                avatar: user.avatar
             }, process.env.JWT_REFRESH_SECRET, { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN });
             res.cookie('token', token, {
                 httpOnly: true,

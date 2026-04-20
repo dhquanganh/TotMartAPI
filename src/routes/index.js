@@ -6,7 +6,8 @@ const brandRouter = require('./brandRouter');
 const categoryRouter = require('./categoryRouter');
 const subcribePlanRouter = require('./subcribePlanRouter');
 const cartRouter = require('./cartRouter');
-
+const checkOutRouter = require('./checkOutRouter');
+const boxRouter = require('./boxRouter');
 // Health check endpoint
 function router(app) {
     app.use('/api/users', userRouter);
@@ -15,6 +16,8 @@ function router(app) {
     app.use('/api/categories', categoryRouter);
     app.use('/api/subcribe-plans', subcribePlanRouter);
     app.use('/api/carts', cartRouter);
+    app.use('/api/checkout', checkOutRouter);
+    app.use('/api/boxes', boxRouter);
     app.use('/api/home', homeRouter);
 }
 

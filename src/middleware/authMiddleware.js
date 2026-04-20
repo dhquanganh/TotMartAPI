@@ -12,12 +12,13 @@ class authMiddleware {
           message: 'No token provided'
         });
       }
-      
+
       // Verify token
       const decoded = verifyToken(token);
+      req.user = decoded;
       req.userId = decoded.userId;
       const user = await User.findById(decoded.userId);
-      if(user.isActive === false){
+      if (user.isActive === false) {
         return res.status(403).json({
           success: true,
           message: 'Account is locked. Please contact Admin to support.'
@@ -32,7 +33,7 @@ class authMiddleware {
   async adminMiddleware(req, res, next) {
     try {
       const token = req.headers.authorization?.split(' ')[1];
-      
+
       if (!token) {
         return res.status(401).json({
           success: false,
