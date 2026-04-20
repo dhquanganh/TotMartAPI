@@ -76,8 +76,14 @@ const updateBrandSchema = joi.object({
 const categorySchema = joi.object({
   name: joi.string().min(3).max(100).required(),
   description: joi.string().max(500).optional(),
-  parentId: joi.string().hex().length(24).optional()
+  childrenIds: joi.array().items(joi.string().hex().length(24)).optional()
 })
+
+const updateCategorySchema = joi.object({
+  name: joi.string().min(3).max(100).optional(),
+  description: joi.string().max(500).optional(),
+  childrenIds: joi.array().items(joi.string().hex().length(24)).optional()
+}).min(1)
 
 const createBoxSchema = joi.object({
   name: joi.string().min(3).max(100).required(),
@@ -124,6 +130,7 @@ module.exports = {
   updateUserSchema,
   idParamSchema,
   categorySchema,
+  updateCategorySchema,
   createBoxSchema,
   createSubcribePlanSchema
 };
