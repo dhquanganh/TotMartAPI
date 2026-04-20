@@ -546,6 +546,12 @@
         <a class="nav-item" href="#subcribe-plans">
           <span class="nav-dot" style="background:#3dd68c"></span> Gói đăng ký
         </a>
+        <a class="nav-item" href="#cart">
+          <span class="nav-dot" style="background:#c084fc"></span> Giỏ hàng
+        </a>
+        <a class="nav-item" href="#checkout">
+          <span class="nav-dot" style="background:#f4a942"></span> Thanh toán
+        </a>
       </div>
       <div class="nav-section">
         <div class="nav-label">Khác</div>
@@ -608,6 +614,18 @@
       <div class="section" id="subcribe-plans">
         <div class="section-header">Gói đăng ký</div>
         <div id="subcribe-plans-eps"></div>
+      </div>
+
+      <!-- Cart -->
+      <div class="section" id="cart">
+        <div class="section-header">Giỏ hàng</div>
+        <div id="cart-eps"></div>
+      </div>
+
+      <!-- Checkout -->
+      <div class="section" id="checkout">
+        <div class="section-header">Thanh toán</div>
+        <div id="checkout-eps"></div>
       </div>
 
       <!-- Errors -->
@@ -846,10 +864,9 @@
   -F "images=@/path/to/image1.jpg" \\
   -F "images=@/path/to/image2.jpg"` },
         {
-          method: "GET", path: "/products/get-all-products", desc: "Lấy tất cả sản phẩm", auth: true, admin: true,
-          codes: ["200", "401", "403"],
-          example: `curl -X GET http://localhost:3000/api/products/get-all-products \\
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"`
+          method: "GET", path: "/products/get-all-products", desc: "Lấy tất cả sản phẩm", auth: false,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/products/get-all-products`
         },
         {
           method: "PUT", path: "/products/update-product/:_id", desc: "Cập nhật sản phẩm (multipart/form-data)", auth: true, admin: true,
@@ -879,12 +896,11 @@
   -H "Authorization: Bearer YOUR_JWT_TOKEN"`
         },
         {
-          method: "GET", path: "/products/get-products-by-id/:_id", desc: "Lấy sản phẩm theo ID", auth: true, admin: true,
+          method: "GET", path: "/products/get-products-by-id/:_id", desc: "Lấy sản phẩm theo ID", auth: false,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của sản phẩm" }],
           response: `{ "success": true, "message": "Product retrieved successfully", "data": { "_id": "...", "name": "...", "price": 199000, "brand": { ... }, "category": { ... }, "images": [...] } }`,
-          codes: ["200", "404", "401", "403"],
-          example: `curl -X GET http://localhost:3000/api/products/get-products-by-id/64a1b2c3d4e5f6789abc3333 \\
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"`
+          codes: ["200", "404"],
+          example: `curl -X GET http://localhost:3000/api/products/get-products-by-id/64a1b2c3d4e5f6789abc3333`
         }
       ],
       "brands-eps": [
@@ -1119,6 +1135,88 @@
           codes: ["200", "401", "403", "500"],
           example: `curl -X POST http://localhost:3000/api/subcribe-plans/process-deliveries \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+      ],
+      "cart-eps": [
+        {
+          method: "POST", path: "/carts/add-to-cart", desc: "Thêm sản phẩm vào giỏ hàng hoặc tạo giỏ mới", auth: true,
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng" },
+            { name: "productId", type: "ObjectId", required: true, desc: "ID sản phẩm cần thêm" },
+            { name: "quantity", type: "number", required: true, desc: "Số lượng sản phẩm (phải > 0)" },
+          ],
+          response: `{ "success": true, "message": "Item added to cart successfully", "data": { "_id": "...", "userId": "...", "items": [{ "productId": "...", "quantity": 2 }], "totalPrice": 0 } }`,
+          codes: ["200", "201", "400", "401"],
+          example: `curl -X POST http://localhost:3000/api/carts/add-to-cart \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "productId": "64a1b2c3d4e5f6789abc3333",
+    "quantity": 2
+  }'` },
+        {
+          method: "GET", path: "/carts/get-cart/:_id", desc: "Lấy giỏ hàng của người dùng theo user ID", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          response: `{ "success": true, "message": "Cart retrieved successfully", "data": { "_id": "...", "userId": { "name": "...", "email": "..." }, "items": [{ "productId": { "name": "...", "price": 199000 }, "quantity": 2 }], "totalPrice": 0 } }`,
+          codes: ["200", "401"],
+          example: `curl -X GET http://localhost:3000/api/carts/get-cart/64a1b2c3d4e5f6789abc1234 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "GET", path: "/carts/get-all-cart", desc: "Lấy tất cả giỏ hàng (Admin only)", auth: true, admin: true,
+          response: `{ "success": true, "message": "Carts retrieved successfully", "data": [{ "_id": "...", "userId": { "name": "...", "email": "..." }, "items": [...], "totalPrice": 0 }] }`,
+          codes: ["200", "401", "403"],
+          example: `curl -X GET http://localhost:3000/api/carts/get-all-cart \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "PUT", path: "/carts/update-cart/:_id", desc: "Cập nhật số lượng sản phẩm trong giỏ hoặc tạo giỏ mới", auth: true,
+          params: [{ name: ":_id", desc: "Tham số này không được sử dụng, gửi userId qua body" }],
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng" },
+            { name: "productId", type: "ObjectId", required: true, desc: "ID sản phẩm cần cập nhật" },
+            { name: "quantity", type: "number", required: true, desc: "Số lượng mới" },
+          ],
+          response: `{ "success": true, "message": "Item updated in cart successfully", "data": { "_id": "...", "userId": "...", "items": [{ "productId": "...", "quantity": 5 }], "totalPrice": 0 } }`,
+          codes: ["200", "201", "400", "401"],
+          example: `curl -X PUT http://localhost:3000/api/carts/update-cart/64a1b2c3d4e5f6789abc1111 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "productId": "64a1b2c3d4e5f6789abc3333",
+    "quantity": 5
+  }'` },
+        {
+          method: "DELETE", path: "/carts/delete-from-cart/:_id", desc: "Xóa sản phẩm khỏi giỏ hàng", auth: true,
+          params: [{ name: ":_id", desc: "Tham số này không được sử dụng, gửi userId và productId qua body" }],
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng" },
+            { name: "productId", type: "ObjectId", required: true, desc: "ID sản phẩm cần xóa" },
+          ],
+          response: `{ "success": true, "message": "Item deleted from cart successfully", "data": { "_id": "...", "userId": "...", "items": [...], "totalPrice": 0 } }`,
+          codes: ["200", "404", "401"],
+          example: `curl -X DELETE http://localhost:3000/api/carts/delete-from-cart/64a1b2c3d4e5f6789abc1111 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "productId": "64a1b2c3d4e5f6789abc3333"
+  }'` },
+      ],
+      "checkout-eps": [
+        {
+          method: "POST", path: "/checkout/check-out", desc: "Thực hiện thanh toán (Chức năng đang phát triển)", auth: true,
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng thực hiện thanh toán" },
+            { name: "cartId", type: "ObjectId", required: false, desc: "ID giỏ hàng (nếu cần)" },
+          ],
+          response: `{ "success": true, "message": "Checkout processed successfully" }`,
+          codes: ["200", "400", "401"],
+          example: `curl -X POST http://localhost:3000/api/checkout/check-out \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234"
+  }'` },
       ],
     };
 
