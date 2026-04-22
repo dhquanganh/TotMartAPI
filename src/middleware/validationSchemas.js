@@ -106,10 +106,7 @@ const createSubcribePlanSchema = joi.object({
     zipCode: joi.string().max(10).required(),
     phone: joi.string().pattern(/^[0-9()+\s-]{7,20}$/).required()
   }).required(),
-  price: joi.number().positive().required(),
-  oldPrice: joi.number().positive().required(),
-  discount: joi.number().positive().required(),
-  discountPercent: joi.number().positive().required(),
+  discountPercent: joi.number().positive().max(100).optional(),
   gift: joi.array().items(joi.object({
     boxId: joi.string().hex().length(24).required(),
     quantity: joi.number().integer().min(1).required()

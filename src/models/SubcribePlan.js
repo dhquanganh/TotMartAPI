@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const subcribePlanSchema = new mongoose.Schema({
     name: { type: String, require: true },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", require: true },
+    boxId: { type: mongoose.Schema.Types.ObjectId, ref: "Box", require: true },
     planType: { type: String, enum: ['1_month', '3_month', '6_month', '12_month'], require: true },
 
     currentPeriodStart: { type: Date, require: true },

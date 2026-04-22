@@ -5,10 +5,12 @@ const cartSchema = new mongoose.Schema({
     items: [
         {
             productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
-            quantity: { type: Number, required: true }
+            subcricePlanId: { type: mongoose.Schema.Types.ObjectId, ref: "SubscribePlan" },
+            quantity: { type: Number }
         }
     ],
-    totalPrice: { type: Number, required: true }
+    totalPrice: { type: Number, required: true },
+    isSubcribeCart: { type: Boolean, default: false }
 }, {
     timestamps: true
 })

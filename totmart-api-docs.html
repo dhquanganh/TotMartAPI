@@ -558,6 +558,9 @@
         <a class="nav-item" href="#errors">
           <span class="nav-dot" style="background:#555560"></span> Lỗi
         </a>
+        <a class="nav-item" href="#schemas">
+          <span class="nav-dot" style="background:#a78bfa"></span> Schemas
+        </a>
       </div>
     </nav>
 
@@ -670,6 +673,225 @@
           <pre>{ "success": false, "message": "Mô tả lỗi", "errors": [{ "field": "fieldName", "message": "Chi tiết" }] }</pre>
         </div>
       </div>
+
+      <!-- Data Schemas -->
+      <div class="section" id="schemas">
+        <div class="section-header">Schemas &amp; Data Models</div>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">User Schema
+        </h3>
+        <pre>{
+  "_id": ObjectId,
+  "name": String (required, unique),
+  "email": String (required, unique),
+  "password": String (required, bcrypt-hashed),
+  "role": String (enum: ['user', 'admin'], default: 'user'),
+  "avatar": {
+    "url": String,
+    "public_id": String
+  },
+  "addreses": [
+    {
+      "country": String,
+      "city": String,
+      "district": String,
+      "address": String,
+      "phone": String
+    }
+  ],
+  "cart": [
+    {
+      "productId": ObjectId (ref: Product),
+      "quantity": Number (default: 1),
+      "price": Number
+    }
+  ],
+  "isActive": Boolean (default: true),
+  "refreshToken": [String],
+  "resetPasswordToken": String,
+  "resetPasswordExpires": Date,
+  "subscribePlan": ObjectId (ref: SubscribePlan),
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">Product
+          Schema</h3>
+        <pre>{
+  "_id": ObjectId,
+  "productId": String (required, unique),
+  "name": String (required),
+  "price": Number (required),
+  "description": String,
+  "brand": ObjectId (ref: Brand),
+  "category": ObjectId (ref: Category),
+  "instock": Boolean (default: true),
+  "stock": Number (default: 0),
+  "images": [
+    {
+      "url": String (required),
+      "public_id": String (required)
+    }
+  ],
+  "salePercent": Number (default: 0),
+  "details": String,
+  "rate": Number (default: 0),
+  "slug": String (unique, auto-generated from name),
+  "views": Number (default: 0),
+  "selledNumber": Number (default: 0),
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">Order Schema
+        </h3>
+        <pre>{
+  "_id": ObjectId,
+  "userId": ObjectId (ref: User, required),
+  "products": [
+    {
+      "productId": ObjectId (ref: Product, required),
+      "quantity": Number (default: 1),
+      "brand": ObjectId (ref: Brand),
+      "totalPrice": Number (required)
+    }
+  ],
+  "orderId": String (required, unique),
+  "status": String (enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], default: 'pending'),
+  "totalAmount": Number (required),
+  "shippingFee": Number (default: 0),
+  "discountAmount": Number (default: 0),
+  "shippingAddress": {
+    "city": String,
+    "fullName": String,
+    "phone": String,
+    "address": String,
+    "country": String,
+    "postalCode": String
+  },
+  "paymentMethod": String (enum: ['cod', 'online'], default: 'cod'),
+  "paymentStatus": String (enum: ['pending', 'paid', 'failed'], default: 'pending'),
+  "note": String,
+  "couponCode": String,
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">Cart Schema
+        </h3>
+        <pre>{
+  "_id": ObjectId,
+  "userId": ObjectId (ref: User),
+  "items": [
+    {
+      "productId": ObjectId (ref: Product),
+      "subcricePlanId": ObjectId (ref: SubscribePlan),
+      "quantity": Number
+    }
+  ],
+  "totalPrice": Number (required),
+  "isSubcribeCart": Boolean (default: false),
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">Box Schema
+        </h3>
+        <pre>{
+  "_id": ObjectId,
+  "name": String (required),
+  "stock": Number (required),
+  "descriptions": String (required),
+  "validFrom": Date (required),
+  "validTo": Date (required),
+  "products": [
+    {
+      "productId": ObjectId (ref: Product, required),
+      "quantity": Number (default: 1),
+      "name": String
+    }
+  ],
+  "totalItem": Number,
+  "value": Number (required),
+  "images": [
+    {
+      "url": String (required),
+      "public_id": String (required)
+    }
+  ],
+  "isGift": Boolean (default: false),
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">
+          SubscribePlan Schema</h3>
+        <pre>{
+  "_id": ObjectId,
+  "name": String (required),
+  "userId": ObjectId (ref: User, required),
+  "planType": String (enum: ['1_month', '3_month', '6_month', '12_month'], required),
+  "currentPeriodStart": Date (required),
+  "currentPeriodEnd": Date (required),
+  "totalDeliveries": Number (required),
+  "completeDeliveries": Number (default: 0),
+  "remainDeliveries": Number (required),
+  "nextDeliveries": Date (required),
+  "lastDeliveries": Date (default: null),
+  "status": String (enum: ['active', 'cancelled', 'expired'], default: 'active'),
+  "cancelAtPeriodEnd": Boolean (default: false),
+  "shippingAddress": {
+    "address": String (required),
+    "district": String (required),
+    "city": String (required),
+    "country": String (required),
+    "zipCode": String (required),
+    "phone": String (required)
+  },
+  "price": Number (required),
+  "oldPrice": Number (required),
+  "discount": Number (required),
+  "discountPercent": Number (required),
+  "gift": [
+    {
+      "boxId": ObjectId (ref: Box),
+      "quantity": Number (default: 1)
+    }
+  ],
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">Category
+          Schema</h3>
+        <pre>{
+  "_id": ObjectId,
+  "name": String (required, unique),
+  "childrenIds": [
+    {
+      "categoryId": ObjectId (ref: Category)
+    }
+  ],
+  "isActive": Boolean (default: true),
+  "slug": String (auto-generated from name),
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+        <h3 style="font-size:14px;font-weight:500;margin-top:1.5rem;margin-bottom:0.8rem;color:var(--text)">Brand Schema
+        </h3>
+        <pre>{
+  "_id": ObjectId,
+  "name": String (required, unique),
+  "description": String,
+  "logo": String,
+  "website": String,
+  "slug": String (auto-generated from name),
+  "createdAt": Date,
+  "updatedAt": Date
+}</pre>
+
+      </div>
     </main>
   </div>
 
@@ -728,18 +950,18 @@
         {
           method: "POST", path: "/users/register", desc: "Đăng ký tài khoản mới", auth: false,
           fields: [
-            { name: "fullName", type: "string", required: true, desc: "Họ và tên đầy đủ" },
+            { name: "name", type: "string", required: true, desc: "Tên người dùng (3-100 ký tự)" },
             { name: "email", type: "string", required: true, desc: "Địa chỉ email (duy nhất)" },
-            { name: "password", type: "string", required: true, desc: "Mật khẩu (được mã hóa bcrypt)" },
+            { name: "password", type: "string", required: true, desc: "Mật khẩu (tối thiểu 6 ký tự, được mã hóa bcrypt)" },
           ],
           response: `{ "success": true, "user": { "_id": "...", "fullName": "John Doe", "email": "john@example.com" } }`,
           codes: ["201", "400"],
           example: `curl -X POST http://localhost:3000/api/users/register \\
   -H "Content-Type: application/json" \\
   -d '{
-    "fullName": "Nguyen Van A",
+    "name": "Nguyen Van A",
     "email": "nguyenvana@example.com",
-    "password": "password123",
+    "password": "password123"
   }'` },
         {
           method: "GET", path: "/users/get-all-users", desc: "Lấy danh sách tất cả người dùng", auth: true, admin: true,
@@ -754,22 +976,23 @@
           example: `curl -X GET http://localhost:3000/api/users/get-user-by-id/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
         {
-          method: "PUT", path: "/users/update-user/:_id", desc: "Cập nhật thông tin người dùng", auth: true,
+          method: "PUT", path: "/users/update-user/:_id", desc: "Cập nhật thông tin người dùng (multipart/form-data)", auth: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
           fields: [
-            { name: "fullName", type: "string", required: false, desc: "Họ và tên mới" },
-            { name: "phone", type: "string", required: false, desc: "Số điện thoại mới" },
-            { name: "avatar", type: "string", required: false, desc: "URL ảnh đại diện" },
+            { name: "name", type: "string", required: false, desc: "Tên người dùng mới (3-100 ký tự)" },
+            { name: "city", type: "string", required: false, desc: "Thành phố" },
+            { name: "district", type: "string", required: false, desc: "Quận/Huyện" },
+            { name: "address", type: "string", required: false, desc: "Địa chỉ chi tiết" },
+            { name: "phone", type: "string", required: false, desc: "Số điện thoại (7-20 ký tự)" },
           ],
           codes: ["200", "400", "404", "401"],
           example: `curl -X PUT http://localhost:3000/api/users/update-user/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "fullName": "Nguyen Van B",
-    "phone": "0987654321",
-    "avatar": "https://example.com/avatar.jpg"
-  }'` },
+  -F "name=Nguyen Van B" \\
+  -F "city=Ho Chi Minh" \\
+  -F "district=Quan 1" \\
+  -F "address=123 Nguyen Hue" \\
+  -F "phone=0987654321"` },
         {
           method: "DELETE", path: "/users/lock-user/:_id", desc: "Khóa tài khoản người dùng", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
@@ -792,44 +1015,42 @@
           method: "POST", path: "/users/update-address/:_id", desc: "Thêm địa chỉ mới", auth: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
           fields: [
-            { name: "street", type: "string", required: true, desc: "Tên đường / số nhà" },
-            { name: "city", type: "string", required: true, desc: "Thành phố" },
-            { name: "state", type: "string", required: false, desc: "Tỉnh / bang" },
-            { name: "zipCode", type: "string", required: false, desc: "Mã bưu chính" },
-            { name: "country", type: "string", required: true, desc: "Quốc gia" },
-            { name: "isDefault", type: "boolean", required: false, desc: "Đặt làm địa chỉ mặc định" },
+            { name: "country", type: "string", required: false, desc: "Quốc gia" },
+            { name: "city", type: "string", required: false, desc: "Thành phố" },
+            { name: "district", type: "string", required: false, desc: "Quận/Huyện" },
+            { name: "address", type: "string", required: false, desc: "Địa chỉ chi tiết" },
+            { name: "phone", type: "string", required: false, desc: "Số điện thoại (7-20 ký tự)" },
           ],
           codes: ["200", "400", "404"],
           example: `curl -X POST http://localhost:3000/api/users/update-address/64a1b2c3d4e5f6789abc1234 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "street": "12 Nguyen Hue",
-    "city": "Ho Chi Minh",
-    "state": "HCM",
-    "zipCode": "700000",
     "country": "Vietnam",
-    "isDefault": true
+    "city": "Ho Chi Minh",
+    "district": "Quan 1",
+    "address": "12 Nguyen Hue",
+    "phone": "0901234567"
   }'` },
         {
           method: "PUT", path: "/users/edit-address/:_id/:address_id", desc: "Sửa địa chỉ hiện có", auth: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }, { name: ":address_id", desc: "ID địa chỉ cần sửa" }],
           fields: [
-            { name: "street", type: "string", required: false, desc: "Tên đường / số nhà" },
-            { name: "city", type: "string", required: false, desc: "Thành phố" },
-            { name: "state", type: "string", required: false, desc: "Tỉnh / bang" },
-            { name: "zipCode", type: "string", required: false, desc: "Mã bưu chính" },
             { name: "country", type: "string", required: false, desc: "Quốc gia" },
-            { name: "isDefault", type: "boolean", required: false, desc: "Đặt làm địa chỉ mặc định" },
+            { name: "city", type: "string", required: false, desc: "Thành phố" },
+            { name: "district", type: "string", required: false, desc: "Quận/Huyện" },
+            { name: "address", type: "string", required: false, desc: "Địa chỉ chi tiết" },
+            { name: "phone", type: "string", required: false, desc: "Số điện thoại (7-20 ký tự)" },
           ],
           codes: ["200", "400", "404"],
           example: `curl -X PUT http://localhost:3000/api/users/edit-address/64a1b2c3d4e5f6789abc1234/64b9c3d4e5f6789abc5678ef \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
   -H "Content-Type: application/json" \\
   -d '{
-    "street": "56 Tran Hung Dao",
     "city": "Ha Noi",
-    "isDefault": false
+    "district": "Hoan Kiem",
+    "address": "56 Tran Hung Dao",
+    "phone": "0912345678"
   }'` },
         {
           method: "DELETE", path: "/users/delete-address/:_id/:address_id", desc: "Xóa địa chỉ", auth: true,
@@ -907,10 +1128,10 @@
         {
           method: "POST", path: "/brands/create-brand", desc: "Tạo thương hiệu mới", auth: true, admin: true,
           fields: [
-            { name: "name", type: "string", required: true, desc: "Tên thương hiệu (duy nhất)" },
-            { name: "description", type: "string", required: false, desc: "Mô tả thương hiệu" },
+            { name: "name", type: "string", required: true, desc: "Tên thương hiệu (3-100 ký tự, duy nhất)" },
+            { name: "description", type: "string", required: false, desc: "Mô tả thương hiệu (tối đa 500 ký tự)" },
+            { name: "cityAddress", type: "string", required: false, desc: "Địa chỉ thành phố (tối đa 255 ký tự)" },
             { name: "logo", type: "string", required: false, desc: "URL logo thương hiệu" },
-            { name: "website", type: "string", required: false, desc: "Website chính thức" },
           ],
           response: `{ "success": true, "brand": { "_id": "...", "name": "Brand Name", "slug": "brand-name" } }`,
           codes: ["201", "400", "401", "403"],
@@ -920,8 +1141,8 @@
   -d '{
     "name": "Nike",
     "description": "Thuong hieu the thao hang dau",
-    "logo": "https://example.com/nike-logo.png",
-    "website": "https://nike.com"
+    "cityAddress": "USA",
+    "logo": "https://example.com/nike-logo.png"
   }'` },
         {
           method: "GET", path: "/brands/get-all-brands", desc: "Lấy tất cả thương hiệu", auth: false,
@@ -932,8 +1153,9 @@
           method: "PUT", path: "/brands/update-brand/:_id", desc: "Cập nhật thương hiệu", auth: true, admin: true,
           params: [{ name: ":_id", desc: "MongoDB ObjectId của thương hiệu" }],
           fields: [
-            { name: "name", type: "string", required: false, desc: "Tên thương hiệu mới" },
-            { name: "description", type: "string", required: false, desc: "Mô tả mới" },
+            { name: "name", type: "string", required: false, desc: "Tên thương hiệu mới (3-100 ký tự)" },
+            { name: "description", type: "string", required: false, desc: "Mô tả mới (tối đa 500 ký tự)" },
+            { name: "cityAddress", type: "string", required: false, desc: "Địa chỉ thành phố (tối đa 255 ký tự)" },
             { name: "logo", type: "string", required: false, desc: "URL logo mới" },
           ],
           codes: ["200", "400", "404", "401"],
@@ -943,6 +1165,7 @@
   -d '{
     "name": "Nike Vietnam",
     "description": "Cap nhat mo ta moi",
+    "cityAddress": "Vietnam",
     "logo": "https://example.com/nike-new.png"
   }'` },
         {
@@ -1025,9 +1248,9 @@
           fields: [
             { name: "name", type: "string", required: true, desc: "Tên hộp (3-100 ký tự)" },
             { name: "description", type: "string", required: true, desc: "Mô tả hộp (tối đa 500 ký tự)" },
-            { name: "products", type: "ObjectId[]", required: true, desc: "Mảng ID sản phẩm trong hộp" },
-            { name: "stock", type: "number", required: true, desc: "Số lượng tồn kho" },
-            { name: "isGift", type: "boolean", required: false, desc: "Là hộp quà tặng (mặc định: false)" },
+            { name: "products", type: "ObjectId[]", required: true, desc: "Mảng ID sản phẩm trong hộp (tối thiểu 1 sản phẩm)" },
+            { name: "stock", type: "number", required: true, desc: "Số lượng tồn kho (tối thiểu 0)" },
+            { name: "isGift", type: "boolean", required: false, desc: "Là hộp quà tặng (đặt mặc định: false)" },
             { name: "images", type: "file[]", required: false, desc: "File ảnh hộp sản phẩm (tối đa 10 file, upload qua form-data)" },
           ],
           response: `{ "success": true, "message": "Box created successfully", "data": { "_id": "...", "name": "...", "totalItem": 3, "value": 500000, "images": [{ "url": "...", "public_id": "..." }] } }`,
@@ -1081,16 +1304,12 @@
         {
           method: "POST", path: "/subcribe-plans/create-subcribe-plan", desc: "Tạo gói đăng ký mới", auth: true, admin: true,
           fields: [
-            { name: "name", type: "string", required: true, desc: "Tên gói đăng ký" },
-            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng đăng ký" },
+            { name: "name", type: "string", required: true, desc: "Tên gói đăng ký (2-100 ký tự)" },
             { name: "planType", type: "string", required: true, desc: "Loại gói: 1_month, 3_month, 6_month, 12_month" },
-            { name: "totalDeliveries", type: "number", required: true, desc: "Tổng số lần giao hàng" },
-            { name: "shippingAddress", type: "object", required: true, desc: "Địa chỉ giao hàng (address, district, city, country, zipCode, phone)" },
-            { name: "price", type: "number", required: true, desc: "Giá gói đăng ký" },
-            { name: "oldPrice", type: "number", required: true, desc: "Giá gốc" },
-            { name: "discount", type: "number", required: true, desc: "Số tiền giảm giá" },
-            { name: "discountPercent", type: "number", required: true, desc: "Phần trăm giảm giá" },
-            { name: "gift", type: "object[]", required: false, desc: "Mảng quà tặng [{ boxId, quantity }]" },
+            { name: "totalDeliveries", type: "number", required: true, desc: "Tổng số lần giao hàng (tối thiểu 1)" },
+            { name: "shippingAddress", type: "object", required: true, desc: "Địa chỉ giao hàng { address, district, city, country, zipCode, phone }" },
+            { name: "discountPercent", type: "number", required: false, desc: "Phần trăm giảm giá (0-100)" },
+            { name: "gift", type: "object[]", required: true, desc: "Mảng quà tặng [{ boxId, quantity }]" },
           ],
           response: `{ "success": true, "message": "Subscribe plan created successfully", "data": { "_id": "...", "name": "...", "planType": "1_month", "status": "active", "totalDeliveries": 12, "remainDeliveries": 12, ... } }`,
           codes: ["201", "400", "401", "403"],
@@ -1099,7 +1318,6 @@
   -H "Content-Type: application/json" \\
   -d '{
     "name": "Goi 3 thang",
-    "userId": "64a1b2c3d4e5f6789abc1234",
     "planType": "3_month",
     "totalDeliveries": 3,
     "shippingAddress": {
@@ -1110,9 +1328,6 @@
       "zipCode": "700000",
       "phone": "0901234567"
     },
-    "price": 450000,
-    "oldPrice": 500000,
-    "discount": 50000,
     "discountPercent": 10,
     "gift": [{ "boxId": "64a1b2c3d4e5f6789abcaaaa", "quantity": 1 }]
   }'` },
@@ -1222,6 +1437,63 @@
     "userId": "64a1b2c3d4e5f6789abc1234",
     "productId": "64a1b2c3d4e5f6789abc3333"
   }'` },
+        {
+          method: "POST", path: "/carts/add-subcribe-plan-to-cart", desc: "Thêm gói đăng ký vào giỏ hàng hoặc tạo giỏ mới", auth: true,
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng" },
+            { name: "subcribePlanId", type: "ObjectId", required: true, desc: "ID gói đăng ký" },
+            { name: "quantity", type: "number", required: true, desc: "Số lượng gói đăng ký (phải > 0)" },
+          ],
+          response: `{ "success": true, "message": "Subscribe plan added to cart successfully", "data": { "_id": "...", "userId": "...", "items": [{ "subcribePlanId": "...", "quantity": 1 }], "totalPrice": 0, "isSubcribeCart": true } }`,
+          codes: ["200", "201", "400", "401"],
+          example: `curl -X POST http://localhost:3000/api/carts/add-subcribe-plan-to-cart \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "subcribePlanId": "64a1b2c3d4e5f6789abcbbbb",
+    "quantity": 1
+  }'` },
+        {
+          method: "PUT", path: "/carts/update-subcribe-cart", desc: "Cập nhật số lượng gói đăng ký trong giỏ hàng", auth: true,
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng" },
+            { name: "subcribePlanId", type: "ObjectId", required: true, desc: "ID gói đăng ký cần cập nhật" },
+            { name: "quantity", type: "number", required: true, desc: "Số lượng mới" },
+          ],
+          response: `{ "success": true, "message": "Subscribe plan updated in cart successfully", "data": { "_id": "...", "userId": "...", "items": [{ "subcribePlanId": "...", "quantity": 3 }], "totalPrice": 0, "isSubcribeCart": true } }`,
+          codes: ["200", "201", "400", "401"],
+          example: `curl -X PUT http://localhost:3000/api/carts/update-subcribe-cart \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "subcribePlanId": "64a1b2c3d4e5f6789abcbbbb",
+    "quantity": 3
+  }'` },
+        {
+          method: "DELETE", path: "/carts/delete-from-subcribe-cart/:_id", desc: "Xóa gói đăng ký khỏi giỏ hàng", auth: true,
+          params: [{ name: ":_id", desc: "Tham số này không được sử dụng, gửi userId và subcribePlanId qua body" }],
+          fields: [
+            { name: "userId", type: "ObjectId", required: true, desc: "ID người dùng" },
+            { name: "subcribePlanId", type: "ObjectId", required: true, desc: "ID gói đăng ký cần xóa" },
+          ],
+          response: `{ "success": true, "message": "Subscribe plan deleted from cart successfully", "data": { "_id": "...", "userId": "...", "items": [...], "totalPrice": 0, "isSubcribeCart": true } }`,
+          codes: ["200", "404", "401"],
+          example: `curl -X DELETE http://localhost:3000/api/carts/delete-from-subcribe-cart/64a1b2c3d4e5f6789abc1111 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "userId": "64a1b2c3d4e5f6789abc1234",
+    "subcribePlanId": "64a1b2c3d4e5f6789abcbbbb"
+  }'` },
+        {
+          method: "GET", path: "/carts/get-subcribe-cart/:_id", desc: "Lấy giỏ hàng gói đăng ký của người dùng", auth: true,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của người dùng" }],
+          response: `{ "success": true, "message": "Subscribe cart retrieved successfully", "data": { "_id": "...", "userId": { "name": "...", "email": "..." }, "items": [{ "subcribePlanId": { "name": "...", "price": 450000, "planType": "3_month" }, "quantity": 1 }], "totalPrice": 0, "isSubcribeCart": true } }`,
+          codes: ["200", "401"],
+          example: `curl -X GET http://localhost:3000/api/carts/get-subcribe-cart/64a1b2c3d4e5f6789abc1234 \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
       ],
       "checkout-eps": [
         {

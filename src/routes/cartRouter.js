@@ -25,4 +25,21 @@ router.delete('/delete-from-cart/:_id',
     cartController.deleteFromCart
 );
 
+router.post('/add-subcribe-plan-to-cart',
+    authMiddleware.authMiddleware,
+    cartController.addSubcribePlanToCart
+);
+router.put('/update-subcribe-cart',
+    authMiddleware.authMiddleware,
+    cartController.updateSubcribeCart
+);
+router.delete('/delete-from-subcribe-cart/:_id',
+    authMiddleware.authMiddleware,
+    cartController.deleteFromSubcribeCart
+);
+
+router.get('/get-subcribe-cart/:_id',
+    authMiddleware.authMiddleware,
+    cartController.getSubcribeCartByUser
+);
 module.exports = router;

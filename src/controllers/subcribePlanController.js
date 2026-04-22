@@ -1,5 +1,7 @@
 const SubscribePlan = require("../models/SubcribePlan");
 const { processDeliveries } = require("../jobs/deliveryScheduler");
+const boxModel = require("../models/Box");
+const { validate } = require("../models/Category");
 
 function getPlanConfig(planType) {
     const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
@@ -17,7 +19,7 @@ class SubcribePlanController {
         try {
             const validated = req.validatedBody;
             const subcribePlan = new SubscribePlan(validated);
-
+            const box = await boxModel.findById(validated.boxId);
             const now = new Date();
             const { intervalMs, periodMs } = getPlanConfig(validated.planType);
 
@@ -25,6 +27,10 @@ class SubcribePlanController {
             subcribePlan.currentPeriodEnd = new Date(now.getTime() + periodMs);
             subcribePlan.nextDeliveries = new Date(now.getTime() + intervalMs);
             subcribePlan.remainDeliveries = validated.totalDeliveries;
+            subcribePlan.oldPrice = box.value;
+            subcribePlan.discountPercent = validated.discountPercent || 0;
+            subcribePlan.price = box.value * (1 - subcribePlan.discountPercent / 100);
+            subcribePlan.gift = validated.giftId ? [{ boxId: validated.giftId }] : [];
 
             await subcribePlan.save();
             res.status(201).json({
