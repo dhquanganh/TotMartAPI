@@ -1,3 +1,4 @@
+const { get } = require('mongoose')
 const boxModel = require('../models/Box')
 const cloudinary = require('cloudinary').v2
 const productModel = require('../models/Product')
@@ -25,7 +26,9 @@ class BoxController {
             newBox.validFrom = new Date(validated.validFrom);
             newBox.validTo = new Date(validated.validTo);
             newBox.totalItem = validated.products.length;
-            newBox.value = validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+            newBox.value = validated.discountPercent > 0
+                ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)
+                : validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
             let result = [];
             const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             if (req.files && req.files.length > 0) {
@@ -115,7 +118,9 @@ class BoxController {
             validated.validFrom = new Date(validated.validFrom);
             validated.validTo = new Date(validated.validTo);
             validated.totalItem = validated.products.length;
-            validated.value = validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+            validated.value = validated.discountPercent > 0
+                ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)
+                : validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
             const box = await boxModel.findById(_id);
             if (req.files) {
                 const uploadResults = await Promise.all(
@@ -149,6 +154,7 @@ class BoxController {
             box.products = validated.products || box.products;
             box.stock = validated.stock || box.stock;
             box.isGift = validated.isGift || box.isGift;
+            box.discountPercent = validated.discountPercent || box.discountPercent;
             box.totalItem = validated.products.length;
             if (validated.productId) {
                 validated.productId.forEach(product => {
@@ -158,7 +164,9 @@ class BoxController {
                     });
                 });
             }
-            box.value = validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+            box.value = validated.discountPercent > 0
+                ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)
+                : validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
             await box.save();
             res.status(200).json({
                 success: true,
@@ -191,6 +199,55 @@ class BoxController {
             next(error);
         }
     }
+
+    async getProductsInBox(req, res, next) {
+        try {
+            const box = await boxModel.findById(req.params._id);
+            if (!box) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Box not found'
+                });
+            }
+            const products = [];
+            for (const item of box.products) {
+                const product = await productModel.findById(item.productId);
+                if (product) {
+                    products.push({
+                        product: product,
+                        quantity: item.quantity
+                    });
+                }
+            }
+            res.status(200).json({
+                success: true,
+                message: 'Products in box retrieved successfully',
+                data: products
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getBoxOfferDicountCoupons(req, res, next) {
+        try {
+            const discountBox = await boxModel.find({ discountPercent: { $gt: 0 } });
+            const newBox = await boxModel.find({ isGift: true, createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } });
+            const giftBox = await boxModel.find({ isGift: true });
+            res.status(200).json({
+                success: true,
+                message: 'Discount boxes retrieved successfully',
+                data: {
+                    discountBoxes: discountBox,
+                    newBoxes: newBox,
+                    giftBoxes: giftBox
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
+
 
 module.exports = new BoxController();

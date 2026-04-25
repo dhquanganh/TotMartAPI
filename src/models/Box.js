@@ -18,7 +18,8 @@ const boxSchema = new mongoose.Schema({
         url: { type: String, require: true },
         public_id: { type: String, require: true }
     }],
-    isGift: { type: Boolean, default: false }
+    isGift: { type: Boolean, default: false },
+    discountPercent: { type: Number, default: 0 }
 }, {
     timestamp: true
 })

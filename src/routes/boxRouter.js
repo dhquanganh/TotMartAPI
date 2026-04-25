@@ -34,4 +34,10 @@ router.delete('/delete-box/:_id',
     boxController.deleteBox
 );
 
+router.get('/get-products-in-box/:_id',
+    boxController.getProductsInBox
+);
+router.get('/get-box-offer-discount-coupons',
+    boxController.getBoxOfferDicountCoupons
+);
 module.exports = router;

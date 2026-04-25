@@ -1299,6 +1299,19 @@
           codes: ["200", "404", "401", "403"],
           example: `curl -X DELETE http://localhost:3000/api/boxes/delete-box/64a1b2c3d4e5f6789abc3333 \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "GET", path: "/boxes/get-products-in-box/:_id", desc: "Lấy danh sách sản phẩm trong hộp", auth: false,
+          params: [{ name: ":_id", desc: "MongoDB ObjectId của hộp sản phẩm" }],
+          response: `{ "success": true, "message": "Products in box retrieved successfully", "data": [{ "_id": "...", "name": "...", "price": 199000, "quantity": 2, "images": [...] }] }`,
+          codes: ["200", "404"],
+          example: `curl -X GET http://localhost:3000/api/boxes/get-products-in-box/64a1b2c3d4e5f6789abc3333`
+        },
+        {
+          method: "GET", path: "/boxes/get-box-offer-discount-coupons", desc: "Lấy danh sách các hộp có mã giảm giá", auth: false,
+          response: `{ "success": true, "message": "Boxes with discount coupons retrieved successfully", "data": [{ "_id": "...", "name": "...", "value": 500000, "couponCode": "...", "discountPercent": 10, "images": [...] }] }`,
+          codes: ["200"],
+          example: `curl -X GET http://localhost:3000/api/boxes/get-box-offer-discount-coupons`
+        },
       ],
       "subcribe-plans-eps": [
         {
