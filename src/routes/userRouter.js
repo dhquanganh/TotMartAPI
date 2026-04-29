@@ -19,7 +19,6 @@ routers.get(
 );
 routers.get(
   '/get-user-by-id/:_id',
-  authMiddleware.adminMiddleware,
   authMiddleware.authMiddleware,
   validationHandler.validate(validationSchemas.idParamSchema, 'params'),
   userController.getUserById
@@ -66,6 +65,11 @@ routers.delete('/delete-address/:_id/:address_id',
   validationHandler.validate(validationSchemas.idParamSchema, 'params'),
   validationHandler.validate(validationSchemas.updateAddressSchema),
   userController.deleteAddress
+);
+
+routers.get('/me',
+  authMiddleware.authMiddleware,
+  userController.getMyProfile
 );
 
 module.exports = routers;

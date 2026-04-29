@@ -1058,6 +1058,12 @@
           codes: ["200", "404"],
           example: `curl -X DELETE http://localhost:3000/api/users/delete-address/64a1b2c3d4e5f6789abc1234/64b9c3d4e5f6789abc5678ef \\
   -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
+        {
+          method: "GET", path: "/users/me", desc: "Lấy thông tin hồ sơ của người dùng hiện tại", auth: true,
+          response: `{ "success": true, "message": "User profile retrieved successfully", "data": { "_id": "...", "name": "...", "email": "user@example.com", "role": "user", "avatar": { "url": "...", "public_id": "..." }, "isActive": true, "createdAt": "2024-01-15T10:30:00.000Z" } }`,
+          codes: ["200", "401"],
+          example: `curl -X GET http://localhost:3000/api/users/me \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"` },
       ],
       "products-eps": [
         {

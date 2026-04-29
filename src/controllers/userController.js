@@ -212,6 +212,22 @@ class UserController {
             next(error);
         }
     }
+
+    async getMyProfile(req, res, next) {
+        try {
+            const user = await userModel.findById(req.user._id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            res.status(200).json({
+                success: true,
+                message: 'Profile retrieved successfully',
+                data: user
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 module.exports = new UserController();
