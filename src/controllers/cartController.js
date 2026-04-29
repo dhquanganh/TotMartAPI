@@ -130,7 +130,7 @@ class CartController {
     async addSubcribeCart(req, res, next) {
         try {
             const { subcricePlanId, quantity } = req.body;
-            const cart = await Cart.findOne({ userId: req.user._id, isSubcribeCart: true }).populate('items.productId', 'name price');
+            const cart = await Cart.findOne({ userId: req.userId, isSubcribeCart: true }).populate('items.productId', 'name price').populate('items.subcricePlanId', 'name price');
             if (cart) {
                 const subcribePlan = await SubcribePlan.findOne({ _id: subcricePlanId });
                 if (!subcribePlan) {
@@ -154,7 +154,7 @@ class CartController {
                         message: 'Subcribe plan not found for this product'
                     });
                 }
-                const newCart = new Cart({ userId: req.user._id, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
+                const newCart = new Cart({ userId: req.userId, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
                 await newCart.save();
                 return res.status(201).json({
                     success: true,
@@ -169,11 +169,13 @@ class CartController {
 
     async getSubcribeCartByUser(req, res, next) {
         try {
-            const cart = await Cart.findOne({ userId: req.params.userId, isSubcribeCart: true }).populate('userId', 'name email').populate('items.productId', 'name price');
+            const cart = await Cart.findOne({ userId: req.params.userId, isSubcribeCart: true }).populate('userId', 'name email').populate('items.productId', 'name price').populate('items.subcricePlanId', 'name price');
+            const gift = await SubcribePlan.find({ _id: { $in: cart.items.map(item => item.subcricePlanId) } }).populate('gift.boxId', 'name price');
             res.status(200).json({
                 success: true,
                 message: 'Subscribe cart retrieved successfully',
-                data: cart
+                data: cart,
+                gift: gift
             });
         } catch (error) {
             next(error);
@@ -183,7 +185,7 @@ class CartController {
     async deleteFromSubcribeCart(req, res, next) {
         try {
             const { subcricePlanId } = req.body;
-            const cart = await Cart.findOne({ userId: req.user._id, isSubcribeCart: true }).populate('items.productId', 'name price');
+            const cart = await Cart.findOne({ userId: req.userId, isSubcribeCart: true }).populate('items.productId', 'name price').populate('items.subcricePlanId', 'name price');
             if (cart) {
                 const subcribeItem = cart.items.find(item => item.subcricePlanId.toString() === subcricePlanId);
                 if (subcribeItem) {
@@ -210,7 +212,7 @@ class CartController {
     async updateSubcribeCart(req, res, next) {
         try {
             const { subcricePlanId, quantity } = req.body;
-            const cart = await Cart.findOne({ userId: req.user._id, isSubcribeCart: true }).populate('items.productId', 'name price');
+            const cart = await Cart.findOne({ userId: req.userId, isSubcribeCart: true }).populate('items.productId', 'name price').populate('items.subcricePlanId', 'name price');
             if (cart) {
                 const subcribeItem = cart.items.find(item => item.subcricePlanId.toString() === subcricePlanId);
                 cart.totalPrice += quantity * subcribeItem.productId.price;
@@ -234,7 +236,7 @@ class CartController {
                         message: 'Subcribe plan not found for this product'
                     });
                 }
-                const newCart = new Cart({ userId: req.user._id, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
+                const newCart = new Cart({ userId: req.userId, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
                 await newCart.save();
                 return res.status(201).json({
                     success: true,
@@ -257,7 +259,7 @@ class CartController {
                     message: 'Subcribe plan not found for this product'
                 });
             }
-            const cart = await Cart.findOne({ userId: req.user._id, isSubcribeCart: true }).populate('items.productId', 'name price');
+            const cart = await Cart.findOne({ userId: req.userId, isSubcribeCart: true }).populate('items.productId', 'name price').populate('items.subcricePlanId', 'name price');
             if (cart) {
                 const subcribeItem = cart.items.find(item => item.subcricePlanId.toString() === subcricePlanId);
                 cart.totalPrice += quantity * subcribePlan.price;
@@ -274,7 +276,7 @@ class CartController {
                     data: cart
                 });
             } else {
-                const newCart = new Cart({ userId: req.user._id, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
+                const newCart = new Cart({ userId: req.userId, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
                 await newCart.save();
                 res.status(201).json({
                     success: true,
