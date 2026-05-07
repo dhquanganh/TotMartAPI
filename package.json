@@ -1,7 +1,7 @@
 {
   "name": "nodejs-mvc-backend",
   "version": "1.0.0",
-  "description": "Totmart API Backend",
+  "description": "Node.js Backend with MVC architecture, MongoDB, and JWT authentication",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
@@ -18,6 +18,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@getbrevo/brevo": "^5.0.3",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.0",
     "cloudinary": "^2.9.0",
@@ -28,7 +29,11 @@
     "joi": "^17.0.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^8.0.0",
-    "mongoose-slug-updater": "^3.3.0"
+    "mongoose-slug-updater": "^3.3.0",
+    "multer": "^2.1.1",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.5",
+    "randomstring": "^1.3.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"
