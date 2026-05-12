@@ -16,19 +16,19 @@ class BoxController {
         try {
             const validated = req.validatedBody;
             const newBox = new boxModel(validated);
-            newBox.products = validated.products.map(product => {
-                return {
-                    product: product._id,
-                    quantity: product.quantity,
+            const products = await productModel.find({ _id: { $in: validated.products } })
+            products.forEach((product, index) => {
+                newBox.products.push({
+                    productId: product._id,
+                    quantity: validated.quantity[index],
+                    price: product.price,
                     name: product.name
-                }
-            });
+                })
+            })
             newBox.validFrom = new Date();
             newBox.validTo = new Date(req.body.validTo);
-            newBox.totalItem = validated.products.length;
-            newBox.value = validated.discountPercent > 0
-                ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)
-                : validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+            newBox.totalItem = products.length;
+            newBox.value = products.reduce((acc, product, index) => acc + product.price * newBox.products[index].quantity, 0) * (1 - validated.discountPercent / 100);
             let result = [];
             const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             if (req.files && req.files.length > 0) {
@@ -115,59 +115,78 @@ class BoxController {
         try {
             const { _id } = req.params;
             const validated = req.validatedBody;
-            if (validated.validTo) {
-                validated.validTo = new Date(validated.validTo);
-            }
-            validated.totalItem = validated.products.length;
-            validated.value = validated.discountPercent > 0
-                ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)
-                : validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+
             const box = await boxModel.findById(_id);
-            if (req.files) {
+            if (!box) {
+                return res.status(404).json({ success: false, message: 'Box not found' });
+            }
+
+            if (req.files && req.files.length > 0) {
                 const uploadResults = await Promise.all(
                     req.files.map(file => {
                         return new Promise((resolve, reject) => {
                             const stream = cloudinary.uploader.upload_stream(
-                                { folder: "Box Products/" + req.body.name, resource_type: "image" },
+                                { folder: "Box Products/" + (validated.name || box.name), resource_type: "image" },
                                 (error, result) => {
                                     if (error) return reject(error);
-                                    resolve({
-                                        url: result.secure_url,
-                                        public_id: result.public_id,
-                                    });
+                                    resolve({ url: result.secure_url, public_id: result.public_id });
                                 }
                             );
                             stream.end(file.buffer);
                         });
                     })
                 );
+
                 for (let i = 0; i < req.files.length; i++) {
                     const match = req.files[i].fieldname.match(/\d+/);
-                    if (box.images[match[0]]) {
+                    if (match && box.images[match[0]]) {
                         await cloudinary.uploader.destroy(box.images[match[0]].public_id);
                         box.images[match[0]].url = uploadResults[i].url;
                         box.images[match[0]].public_id = uploadResults[i].public_id;
                     }
                 }
             }
-            box.name = validated.name || box.name;
-            box.descriptions = validated.descriptions || box.descriptions;
-            box.products = validated.products || box.products;
-            box.stock = validated.stock || box.stock;
-            box.isGift = validated.isGift || box.isGift;
-            box.discountPercent = validated.discountPercent || box.discountPercent;
-            box.totalItem = validated.products.length;
-            if (validated.productId) {
-                validated.productId.forEach(product => {
-                    box.products.push({
-                        productId: product._id,
-                        quantity: product.quantity
-                    });
-                });
+
+            box.name = validated.name ?? box.name;
+            box.descriptions = validated.descriptions ?? box.descriptions;
+            box.stock = validated.stock ?? box.stock;
+            box.isGift = validated.isGift ?? box.isGift;
+            box.discountPercent = validated.discountPercent ?? box.discountPercent;
+            if (validated.validTo) {
+                box.validTo = new Date(validated.validTo);
             }
-            box.value = validated.discountPercent > 0
-                ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)
-                : validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0);
+
+            if (validated.products !== undefined) {
+                if (validated.products.length === 0) {
+                    box.products = [];
+                } else {
+                    const productIds = validated.products.map(p => p.productId);
+                    const productDocs = await productModel.find({ _id: { $in: productIds } });
+                    const productMap = new Map(productDocs.map(doc => [doc._id.toString(), doc]));
+
+                    box.products = validated.products
+                        .map(item => {
+                            const product = productMap.get(item.productId.toString());
+                            if (!product) return null;
+                            return {
+                                productId: product._id,
+                                quantity: item.quantity,
+                                price: product.price,
+                                name: product.name
+                            };
+                        })
+                        .filter(Boolean);
+                }
+            }
+
+            box.totalItem = box.products.length;
+            const subtotal = box.products.reduce(
+                (acc, item) => acc + item.price * item.quantity, 0
+            );
+            box.value = box.discountPercent > 0
+                ? subtotal * (1 - box.discountPercent / 100)
+                : subtotal;
+
             await box.save();
             res.status(200).json({
                 success: true,

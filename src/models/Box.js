@@ -10,6 +10,7 @@ const boxSchema = new mongoose.Schema({
     products: [{
         productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", require: true },
         quantity: { type: Number, default: 1 },
+        price: { type: Number, default: 0 },
         name: { type: String }
     }],
     totalItem: { type: Number },

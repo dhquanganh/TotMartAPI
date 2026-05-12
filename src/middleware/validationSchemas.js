@@ -88,7 +88,10 @@ const updateCategorySchema = joi.object({
 const createBoxSchema = joi.object({
   name: joi.string().min(3).max(100).required(),
   description: joi.string().max(500).required(),
-  products: joi.array().items(joi.string().hex().length(24)).min(1).required(),
+  products: joi.array().items(joi.object({
+    productId: joi.string().hex().length(24).required(),
+    quantity: joi.number().integer().min(1).required()
+  })).min(1).required(),
   stock: joi.number().integer().min(0).required(),
   isGift: joi.boolean().default(false),
   discountPercent: joi.number().positive().max(100).default(0),
@@ -98,7 +101,10 @@ const createBoxSchema = joi.object({
 const updateBoxSchema = joi.object({
   name: joi.string().min(3).max(100).optional(),
   description: joi.string().max(500).optional(),
-  products: joi.array().items(joi.string().hex().length(24)).min(1).optional(),
+  products: joi.array().items(joi.object({
+    productId: joi.string().hex().length(24).required(),
+    quantity: joi.number().integer().min(1).required()
+  })).min(1).optional(),
   stock: joi.number().integer().min(0).optional(),
   isGift: joi.boolean().default(false),
   discountPercent: joi.number().positive().max(100).default(0),
