@@ -95,6 +95,16 @@ const createBoxSchema = joi.object({
   validTo: joi.date().greater('now').required()
 })
 
+const updateBoxSchema = joi.object({
+  name: joi.string().min(3).max(100).optional(),
+  description: joi.string().max(500).optional(),
+  products: joi.array().items(joi.string().hex().length(24)).min(1).optional(),
+  stock: joi.number().integer().min(0).optional(),
+  isGift: joi.boolean().default(false),
+  discountPercent: joi.number().positive().max(100).default(0),
+  validTo: joi.date().greater('now').optional()
+}).min(1);
+
 const createSubcribePlanSchema = joi.object({
   name: joi.string().min(2).max(100).required(),
   planType: joi.string().valid('1_month', '3_month', '6_month', '12_month').required(),
@@ -130,5 +140,6 @@ module.exports = {
   categorySchema,
   updateCategorySchema,
   createBoxSchema,
+  updateBoxSchema,
   createSubcribePlanSchema
 };

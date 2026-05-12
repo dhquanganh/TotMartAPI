@@ -813,6 +813,7 @@
   ],
   "totalItem": Number,
   "value": Number (required),
+  "discountPercent": Number (default: 0),
   "images": [
     {
       "url": String (required),
@@ -1258,6 +1259,7 @@
             { name: "stock", type: "number", required: true, desc: "Số lượng tồn kho (tối thiểu 0)" },
             { name: "isGift", type: "boolean", required: false, desc: "Là hộp quà tặng (đặt mặc định: false)" },
             { name: "images", type: "file[]", required: false, desc: "File ảnh hộp sản phẩm (tối đa 10 file, upload qua form-data)" },
+            { name: "discountPercent", type: "number", required: false, desc: "Phần trăm giảm giá (0-100)" },
             { name: "validTo", type: "Date", required: true, desc: "Ngày hết hạn của hộp sản phẩm" },
           ],
           response: `{ "success": true, "message": "Box created successfully", "data": { "_id": "...", "name": "...", "totalItem": 3, "value": 500000, "images": [{ "url": "...", "public_id": "..." }] } }`,
@@ -1292,6 +1294,9 @@
             { name: "products", type: "ObjectId[]", required: false, desc: "Mảng ID sản phẩm mới" },
             { name: "stock", type: "number", required: false, desc: "Số lượng tồn kho mới" },
             { name: "isGift", type: "boolean", required: false, desc: "Cập nhật trạng thái quà tặng" },
+            { name: "discountPercent", type: "number", required: false, desc: "Phần trăm giảm giá mới (0-100)" },
+            { name: "validFrom", type: "Date", required: false, desc: "Ngày bắt đầu có hiệu lực mới" },
+            { name: "validTo", type: "Date", required: false, desc: "Ngày hết hạn mới" },
             { name: "images", type: "file[]", required: false, desc: "File ảnh thay thế (tối đa 10 file)" },
           ],
           codes: ["200", "400", "404", "401", "403"],

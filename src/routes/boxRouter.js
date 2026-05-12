@@ -25,7 +25,7 @@ router.get('/get-box-by-id/:_id',
 router.put('/update-box/:_id', upload.array("images", 10),
     authMiddleware.authMiddleware,
     authMiddleware.adminMiddleware,
-    validateHandler.validate(validationSchemas.createBoxSchema),
+    validateHandler.validate(validationSchemas.updateBoxSchema),
     boxController.updateBox
 );
 router.delete('/delete-box/:_id',
