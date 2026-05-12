@@ -92,6 +92,7 @@ const createBoxSchema = joi.object({
   stock: joi.number().integer().min(0).required(),
   isGift: joi.boolean().default(false),
   discountPercent: joi.number().positive().max(100).default(0),
+  validTo: joi.date().greater('now').required()
 })
 
 const createSubcribePlanSchema = joi.object({

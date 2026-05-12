@@ -23,8 +23,8 @@ class BoxController {
                     name: product.name
                 }
             });
-            newBox.validFrom = new Date(validated.validFrom);
-            newBox.validTo = new Date(validated.validTo);
+            newBox.validFrom = new Date(new Date.now());
+            newBox.validTo = new Date(req.body.validTo);
             newBox.totalItem = validated.products.length;
             newBox.value = validated.discountPercent > 0
                 ? validated.products.reduce((acc, product) => acc + product.price * product.quantity, 0) * (1 - validated.discountPercent / 100)

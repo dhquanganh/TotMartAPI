@@ -1258,6 +1258,7 @@
             { name: "stock", type: "number", required: true, desc: "Số lượng tồn kho (tối thiểu 0)" },
             { name: "isGift", type: "boolean", required: false, desc: "Là hộp quà tặng (đặt mặc định: false)" },
             { name: "images", type: "file[]", required: false, desc: "File ảnh hộp sản phẩm (tối đa 10 file, upload qua form-data)" },
+            { name: "validTo", type: "Date", required: true, desc: "Ngày hết hạn của hộp sản phẩm" },
           ],
           response: `{ "success": true, "message": "Box created successfully", "data": { "_id": "...", "name": "...", "totalItem": 3, "value": 500000, "images": [{ "url": "...", "public_id": "..." }] } }`,
           codes: ["201", "400", "401", "403"],
