@@ -15,44 +15,62 @@ class BoxController {
     async createBox(req, res, next) {
         try {
             const validated = req.validatedBody;
-            const newBox = new boxModel(validated);
-            const products = await productModel.find({ _id: { $in: validated.products } })
-            products.forEach((product, index) => {
-                newBox.products.push({
-                    productId: product._id,
-                    quantity: validated.quantity[index],
-                    price: product.price,
-                    name: product.name
+
+            const productIds = validated.products.map(p => p.productId);
+            const productDocs = await productModel.find({ _id: { $in: productIds } });
+            const productMap = new Map(productDocs.map(doc => [doc._id.toString(), doc]));
+
+            const builtProducts = validated.products
+                .map(item => {
+                    const product = productMap.get(item.productId.toString());
+                    if (!product) return null;
+                    return {
+                        productId: product._id,
+                        quantity: item.quantity,
+                        price: product.price,
+                        name: product.name
+                    };
                 })
-            })
-            newBox.validFrom = new Date();
-            newBox.validTo = new Date(req.body.validTo);
-            newBox.totalItem = products.length;
-            newBox.value = products.reduce((acc, product, index) => acc + product.price * newBox.products[index].quantity, 0) * (1 - validated.discountPercent / 100);
-            let result = [];
-            const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
+                .filter(Boolean);
+
+            // Upload ảnh nếu có
+            let images = [];
             if (req.files && req.files.length > 0) {
-                const uploadResults = await Promise.all(
+                const folderName = validated.name.trim().toLowerCase().replace(/\s+/g, '-');
+                images = await Promise.all(
                     req.files.map(file => {
                         return new Promise((resolve, reject) => {
                             const stream = cloudinary.uploader.upload_stream(
                                 { folder: "Box Products/" + folderName, resource_type: "image" },
                                 (error, result) => {
                                     if (error) return reject(error);
-                                    resolve({
-                                        url: result.secure_url,
-                                        public_id: result.public_id,
-                                    });
+                                    resolve({ url: result.secure_url, public_id: result.public_id });
                                 }
                             );
                             stream.end(file.buffer);
                         });
                     })
                 );
-
-                result = uploadResults;
             }
-            newBox.images = result;
+
+            const subtotal = builtProducts.reduce(
+                (acc, item) => acc + item.price * item.quantity, 0
+            );
+            const value = validated.discountPercent > 0
+                ? subtotal * (1 - validated.discountPercent / 100)
+                : subtotal;
+
+            const { products, ...rest } = validated;
+            const newBox = new boxModel({
+                ...rest,
+                products: builtProducts,
+                images,
+                validFrom: new Date(),
+                validTo: new Date(validated.validTo),
+                totalItem: builtProducts.length,
+                value
+            });
+
             await newBox.save();
             res.status(201).json({
                 success: true,
