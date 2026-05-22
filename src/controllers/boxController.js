@@ -70,7 +70,7 @@ class BoxController {
                 totalItem: builtProducts.length,
                 value
             });
-
+            newBox.images = images;
             await newBox.save();
             res.status(201).json({
                 success: true,
