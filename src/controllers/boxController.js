@@ -47,7 +47,9 @@ class BoxController {
                                     resolve({ url: result.secure_url, public_id: result.public_id });
                                 }
                             );
-                            stream.end(file.buffer);
+                            stream.on('error', reject);
+                            stream.write(file.buffer);
+                            stream.end();
                         });
                     })
                 );
@@ -150,7 +152,9 @@ class BoxController {
                                     resolve({ url: result.secure_url, public_id: result.public_id });
                                 }
                             );
-                            stream.end(file.buffer);
+                            stream.on('error', reject);
+                            stream.write(file.buffer);
+                            stream.end();
                         });
                     })
                 );
