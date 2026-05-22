@@ -14,6 +14,12 @@ cloudinary.config({
 class BoxController {
     async createBox(req, res, next) {
         try {
+            console.log('[DEBUG] === CREATE BOX ===');
+            console.log('[DEBUG] req.files:', req.files);
+            console.log('[DEBUG] req.files?.length:', req.files?.length);
+            console.log('[DEBUG] req.body:', Object.keys(req.body));
+            console.log('[DEBUG] req.validatedBody:', req.validatedBody);
+
             const validated = req.validatedBody;
 
             const productIds = validated.products.map(p => p.productId);
