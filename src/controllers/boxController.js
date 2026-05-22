@@ -34,23 +34,28 @@ class BoxController {
                 .filter(Boolean);
 
             // Upload ảnh nếu có
-            let images = [];
+            let result = [];
+            const folderName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             if (req.files && req.files.length > 0) {
-                const folderName = validated.name.trim().toLowerCase().replace(/\s+/g, '-');
-                images = await Promise.all(
+                const uploadResults = await Promise.all(
                     req.files.map(file => {
                         return new Promise((resolve, reject) => {
                             const stream = cloudinary.uploader.upload_stream(
                                 { folder: "Box Products/" + folderName, resource_type: "image" },
                                 (error, result) => {
                                     if (error) return reject(error);
-                                    resolve({ url: result.secure_url, public_id: result.public_id });
+                                    resolve({
+                                        url: result.secure_url,
+                                        public_id: result.public_id,
+                                    });
                                 }
                             );
                             stream.end(file.buffer);
                         });
                     })
                 );
+
+                result = uploadResults;
             }
 
             const subtotal = builtProducts.reduce(
@@ -70,7 +75,7 @@ class BoxController {
                 totalItem: builtProducts.length,
                 value
             });
-            newBox.images = images;
+            newBox.images = result;
             await newBox.save();
             res.status(201).json({
                 success: true,
