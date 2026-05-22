@@ -69,7 +69,7 @@ class BoxController {
             const newBox = new boxModel({
                 ...rest,
                 products: builtProducts,
-                images,
+                result,
                 validFrom: new Date(),
                 validTo: new Date(validated.validTo),
                 totalItem: builtProducts.length,
