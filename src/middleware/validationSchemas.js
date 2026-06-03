@@ -112,6 +112,8 @@ const updateBoxSchema = joi.object({
 }).min(1);
 
 const createSubcribePlanSchema = joi.object({
+  userId: joi.string().hex().length(24).required(),
+  boxId: joi.string().hex().length(24).required(),
   name: joi.string().min(2).max(100).required(),
   planType: joi.string().valid('1_month', '3_month', '6_month', '12_month').required(),
   totalDeliveries: joi.number().integer().min(1).required(),
@@ -123,12 +125,52 @@ const createSubcribePlanSchema = joi.object({
     zipCode: joi.string().max(10).required(),
     phone: joi.string().pattern(/^[0-9()+\s-]{7,20}$/).required()
   }).required(),
-  discountPercent: joi.number().positive().max(100).optional(),
+  discountPercent: joi.number().min(0).max(100).optional(),
   gift: joi.array().items(joi.object({
     boxId: joi.string().hex().length(24).required(),
-    quantity: joi.number().integer().min(1).required()
-  })).required()
-})
+    quantity: joi.number().integer().min(1).default(1).required()
+  })).optional().default([])
+});
+
+// Subscription Template Schema (Admin creates)
+// totalDeliveries tính tự động: 1_month=1, 3_month=3, 6_month=6, 12_month=12
+const createSubscriptionTemplateSchema = joi.object({
+  name: joi.string().min(2).max(100).required(),
+  description: joi.string().max(500).optional(),
+  boxId: joi.string().hex().length(24).required(),
+  planType: joi.string().valid('1_month', '3_month', '6_month', '12_month').required(),
+  discountPercent: joi.number().min(0).max(100).optional(),
+  gift: joi.array().items(joi.object({
+    boxId: joi.string().hex().length(24).required(),
+    quantity: joi.number().integer().min(1).default(1).required()
+  })).optional().default([])
+});
+
+const updateSubscriptionTemplateSchema = joi.object({
+  name: joi.string().min(2).max(100).optional(),
+  description: joi.string().max(500).optional(),
+  boxId: joi.string().hex().length(24).optional(),
+  planType: joi.string().valid('1_month', '3_month', '6_month', '12_month').optional(),
+  discountPercent: joi.number().min(0).max(100).optional(),
+  isActive: joi.boolean().optional(),
+  gift: joi.array().items(joi.object({
+    boxId: joi.string().hex().length(24).required(),
+    quantity: joi.number().integer().min(1).default(1).required()
+  })).optional()
+}).min(1);
+
+// User Subscription Schema (User subscribes to template)
+const subscribeToTemplateSchema = joi.object({
+  templateId: joi.string().hex().length(24).required(),
+  shippingAddress: joi.object({
+    address: joi.string().max(255).required(),
+    district: joi.string().max(100).required(),
+    city: joi.string().max(100).required(),
+    country: joi.string().max(100).required(),
+    zipCode: joi.string().max(10).required(),
+    phone: joi.string().pattern(/^[0-9()+\s-]{7,20}$/).required()
+  }).required()
+});
 
 
 module.exports = {
@@ -147,5 +189,8 @@ module.exports = {
   updateCategorySchema,
   createBoxSchema,
   updateBoxSchema,
-  createSubcribePlanSchema
+  createSubcribePlanSchema,
+  createSubscriptionTemplateSchema,
+  updateSubscriptionTemplateSchema,
+  subscribeToTemplateSchema
 };

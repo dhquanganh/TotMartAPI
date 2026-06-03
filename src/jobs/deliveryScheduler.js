@@ -1,19 +1,20 @@
 const cron = require('node-cron');
-const SubscribePlan = require('../models/SubcribePlan');
+const UserSubscription = require('../models/UserSubscription');
 
 function getDeliveryIntervalMs(planType) {
+    const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
     const intervals = {
-        '1_month': 30 * 24 * 60 * 60 * 1000,
-        '3_month': 30 * 24 * 60 * 60 * 1000,
-        '6_month': 30 * 24 * 60 * 60 * 1000,
-        '12_month': 30 * 24 * 60 * 60 * 1000,
+        '1_month': THIRTY_DAYS,
+        '3_month': THIRTY_DAYS,
+        '6_month': THIRTY_DAYS,
+        '12_month': THIRTY_DAYS,
     };
-    return intervals[planType] || 30 * 24 * 60 * 60 * 1000;
+    return intervals[planType] || THIRTY_DAYS;
 }
 
 /**
  * Xử lý các gói đăng ký đến hạn giao hàng.
- * - Tìm tất cả các plan active có nextDeliveries <= now
+ * - Tìm tất cả các subscription active có nextDeliveries <= now
  * - Cập nhật lastDeliveries = nextDeliveries cũ
  * - Tăng completeDeliveries, giảm remainDeliveries
  * - Nếu hết lượt giao → đánh dấu expired
@@ -24,7 +25,7 @@ async function processDeliveries() {
     try {
         const now = new Date();
 
-        const duePlans = await SubscribePlan.find({
+        const duePlans = await UserSubscription.find({
             status: 'active',
             nextDeliveries: { $lte: now }
         });
@@ -35,33 +36,33 @@ async function processDeliveries() {
 
         console.log(`[DeliveryScheduler] Tìm thấy ${duePlans.length} gói đến hạn giao hàng`);
 
-        for (const plan of duePlans) {
+        for (const subscription of duePlans) {
             try {
-                plan.lastDeliveries = plan.nextDeliveries;
+                subscription.lastDeliveries = subscription.nextDeliveries;
 
-                plan.completeDeliveries += 1;
-                plan.remainDeliveries -= 1;
+                subscription.completeDeliveries += 1;
+                subscription.remainDeliveries -= 1;
 
-                if (plan.remainDeliveries <= 0) {
-                    plan.remainDeliveries = 0;
-                    plan.status = 'expired';
-                    plan.nextDeliveries = null;
-                    console.log(`[DeliveryScheduler] Plan ${plan._id} đã hết lượt giao → expired`);
+                if (subscription.remainDeliveries <= 0) {
+                    subscription.remainDeliveries = 0;
+                    subscription.status = 'expired';
+                    subscription.nextDeliveries = null;
+                    console.log(`[DeliveryScheduler] Subscription ${subscription._id} đã hết lượt giao → expired`);
                 }
-                else if (plan.cancelAtPeriodEnd && now >= plan.currentPeriodEnd) {
-                    plan.status = 'cancelled';
-                    plan.nextDeliveries = null;
-                    console.log(`[DeliveryScheduler] Plan ${plan._id} đã hủy cuối kỳ → cancelled`);
+                else if (subscription.cancelAtPeriodEnd && now >= subscription.currentPeriodEnd) {
+                    subscription.status = 'cancelled';
+                    subscription.nextDeliveries = null;
+                    console.log(`[DeliveryScheduler] Subscription ${subscription._id} đã hủy cuối kỳ → cancelled`);
                 }
                 else {
-                    const intervalMs = getDeliveryIntervalMs(plan.planType);
-                    plan.nextDeliveries = new Date(plan.lastDeliveries.getTime() + intervalMs);
-                    console.log(`[DeliveryScheduler] Plan ${plan._id} → nextDeliveries: ${plan.nextDeliveries.toISOString()}`);
+                    const intervalMs = getDeliveryIntervalMs(subscription.planType);
+                    subscription.nextDeliveries = new Date(subscription.lastDeliveries.getTime() + intervalMs);
+                    console.log(`[DeliveryScheduler] Subscription ${subscription._id} → nextDeliveries: ${subscription.nextDeliveries.toISOString()}`);
                 }
 
-                await plan.save();
+                await subscription.save();
             } catch (err) {
-                console.error(`[DeliveryScheduler] Lỗi xử lý plan ${plan._id}:`, err.message);
+                console.error(`[DeliveryScheduler] Lỗi xử lý subscription ${subscription._id}:`, err.message);
             }
         }
 
@@ -72,15 +73,82 @@ async function processDeliveries() {
 }
 
 
+/**
+ * Kiểm tra các gói đăng ký cần giao hôm nay
+ * Được chạy hàng ngày để thông báo cho admin/user và API endpoint
+ */
+async function checkTodayDeliveries(shouldLog = true) {
+    try {
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+        const todayDeliveries = await UserSubscription.find({
+            status: 'active',
+            nextDeliveries: {
+                $gte: startOfDay,
+                $lt: endOfDay
+            }
+        })
+            .populate('userId', 'name email phone')
+            .populate('templateId', 'name planType')
+            .populate('boxId', 'name value')
+            .populate('gift.boxId', 'name');
+
+        const result = {
+            success: true,
+            date: startOfDay.toISOString().split('T')[0],
+            count: todayDeliveries.length,
+            deliveries: todayDeliveries
+        };
+
+        // Log thông báo nếu cần (khi chạy từ scheduler)
+        if (shouldLog) {
+            if (todayDeliveries.length > 0) {
+                console.log(`\n╔════════════════════════════════════════════════════════════╗`);
+                console.log(`║ [THÔNG BÁO GẬP] Hôm nay (${result.date}) có ${todayDeliveries.length} đơn cần giao`);
+                console.log(`╠════════════════════════════════════════════════════════════╣`);
+
+                todayDeliveries.forEach((sub, index) => {
+                    console.log(`║ ${index + 1}. Khách: ${sub.userId.name} | Box: ${sub.boxId.name}`);
+                    console.log(`║    SĐT: ${sub.userId.phone || 'N/A'} | Email: ${sub.userId.email}`);
+                    console.log(`║    Địa chỉ: ${sub.shippingAddress.address}, ${sub.shippingAddress.district}, ${sub.shippingAddress.city}`);
+                });
+
+                console.log(`╚════════════════════════════════════════════════════════════╝\n`);
+            } else {
+                console.log(`[CheckDeliveries] Hôm nay (${result.date}) không có đơn nào cần giao`);
+            }
+        }
+
+        return result;
+    } catch (error) {
+        console.error('[CheckTodayDeliveries] Lỗi:', error.message);
+        return {
+            success: false,
+            message: error.message
+        };
+    }
+}
+
+
 function startDeliveryScheduler() {
     console.log('[DeliveryScheduler] Đã khởi động - chạy mỗi 15 phút');
 
     processDeliveries();
+    checkTodayDeliveries(true);
 
+    // Chạy mỗi 15 phút
     cron.schedule('*/15 * * * *', () => {
         console.log(`[DeliveryScheduler] Đang chạy kiểm tra... ${new Date().toISOString()}`);
         processDeliveries();
     });
+
+    // Chạy mỗi ngày lúc 6:00 AM để kiểm tra hàng cần giao hôm nay
+    cron.schedule('0 6 * * *', () => {
+        console.log(`[CheckDeliveries] Đang kiểm tra đơn cần giao hôm nay... ${new Date().toISOString()}`);
+        checkTodayDeliveries(true);
+    });
 }
 
-module.exports = { startDeliveryScheduler, processDeliveries };
+module.exports = { startDeliveryScheduler, processDeliveries, checkTodayDeliveries };
