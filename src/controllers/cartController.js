@@ -1,5 +1,5 @@
 const Cart = require("../models/Cart");
-const SubcribePlan = require("../models/SubcribePlan");
+const SubcribePlan = require("../models/SubscriptionTemplate");
 const Product = require("../models/Product");
 
 class CartController {
@@ -164,7 +164,8 @@ class CartController {
             const cart = await Cart.findOne({ userId: req.userId, isSubcribeCart: true }).populate('items.productId', 'name price').populate('items.subcricePlanId', 'name price');
             if (cart) {
                 const subcribeItem = cart.items.find(item => item.subcricePlanId && item.subcricePlanId._id.toString() === subcricePlanId);
-                cart.totalPrice += quantity * subcribePlan.price;
+                cart.totalPrice += quantity * subcribePlan.basePrice; // Assuming basePrice is the price for the subscription plan
+                if (cart.totalPrice < 0) cart.totalPrice = 0;
                 if (subcribeItem) {
                     subcribeItem.quantity += quantity;
                 } else {
@@ -177,7 +178,7 @@ class CartController {
                     data: cart
                 });
             } else {
-                const newCart = new Cart({ userId: req.userId, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.price, isSubcribeCart: true });
+                const newCart = new Cart({ userId: req.userId, items: [{ subcricePlanId, quantity }], totalPrice: quantity * subcribePlan.basePrice, isSubcribeCart: true });
                 await newCart.save();
                 return res.status(201).json({
                     success: true,
@@ -217,7 +218,7 @@ class CartController {
                 const subcribeItem = cart.items.find(item => item.subcricePlanId && item.subcricePlanId._id.toString() === subcricePlanId);
                 if (subcribeItem) {
                     cart.items.pull(subcribeItem);
-                    cart.totalPrice -= subcribeItem.quantity * subcribeItem.subcricePlanId.price;
+                    cart.totalPrice -= subcribeItem.quantity * subcribeItem.subcricePlanId.basePrice; // Assuming basePrice is the price for the subscription plan
                     if (cart.totalPrice < 0) cart.totalPrice = 0;
                     await cart.save();
                     res.status(200).json({
