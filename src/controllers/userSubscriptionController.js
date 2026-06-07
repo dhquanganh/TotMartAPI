@@ -35,7 +35,7 @@ class UserSubscriptionController {
     async subscribeToTemplate(req, res, next) {
         try {
             const validated = req.validatedBody;
-            const userId = req.user.id;
+            const userId = req.userId; // From auth middleware
 
             const template = await SubscriptionTemplate.findById(validated.templateId);
             if (!template) {
@@ -110,7 +110,7 @@ class UserSubscriptionController {
     // User: Lấy danh sách đăng ký của user
     async getUserSubscriptions(req, res, next) {
         try {
-            const userId = req.user.id; // From auth middleware
+            const userId = req.userId; // From auth middleware
 
             const subscriptions = await UserSubscription.find({ userId: userId })
                 .populate('templateId', 'name planType')
@@ -131,7 +131,7 @@ class UserSubscriptionController {
     // User: Lấy chi tiết đăng ký theo ID
     async getSubscriptionById(req, res, next) {
         try {
-            const userId = req.user.id;
+            const userId = req.userId; // From auth middleware
             const subscription = await UserSubscription.findById(req.params.id)
                 .populate('userId', 'name email')
                 .populate('templateId', 'name planType')
@@ -165,7 +165,7 @@ class UserSubscriptionController {
     // User: Hủy đăng ký cuối kỳ
     async cancelAtPeriodEnd(req, res, next) {
         try {
-            const userId = req.user.id;
+            const userId = req.userId; // From auth middleware
             const subscription = await UserSubscription.findById(req.params.id);
 
             if (!subscription) {
@@ -206,7 +206,7 @@ class UserSubscriptionController {
     // User: Hủy ngay lập tức
     async cancelImmediately(req, res, next) {
         try {
-            const userId = req.user.id;
+            const userId = req.userId; // From auth middleware
             const subscription = await UserSubscription.findById(req.params.id);
 
             if (!subscription) {
@@ -331,7 +331,7 @@ class UserSubscriptionController {
      */
     async getMyTodayDeliveries(req, res, next) {
         try {
-            const userId = req.user.id;
+            const userId = req.userId; // From auth middleware
 
             const today = new Date();
             const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
