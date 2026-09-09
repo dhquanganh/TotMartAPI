@@ -19,6 +19,7 @@ function router(app) {
     app.use('/api/checkout', checkOutRouter);
     app.use('/api/boxes', boxRouter);
     app.use('/api/home', homeRouter);
+    app.use('/api/admin/notifications', notificationRouter);
 }
 
 module.exports = router;
