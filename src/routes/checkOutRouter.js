@@ -53,4 +53,21 @@ router.post(
   checkOutController.markCodDelivered,
 );
 
+// ==== Admin: danh sách đơn đang chờ hoàn tiền ====
+router.get(
+  "/pending-refunds",
+  authMiddleware.authMiddleware,
+  authMiddleware.adminMiddleware,
+  checkOutController.getPendingRefunds,
+);
+
+// ==== Admin: đánh dấu đã hoàn tiền xong ====
+router.post(
+  "/complete-refund/:_id",
+  authMiddleware.authMiddleware,
+  authMiddleware.adminMiddleware,
+  validationHandler.validate(idParamSchema, "params"),
+  checkOutController.completeRefund,
+);
+
 module.exports = router;

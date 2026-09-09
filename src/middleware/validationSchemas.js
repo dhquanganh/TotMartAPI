@@ -242,7 +242,35 @@ const checkoutSchema = joi.object({
   addressId: joi.string().hex().length(24).required(),
   paymentMethod: joi.string().valid("cod", "online").required(),
   note: joi.string().max(500).optional(),
+  couponCode: joi.string().trim().uppercase().min(3).max(30).optional(),
 });
+
+const couponSchema = joi.object({
+  code: joi.string().trim().uppercase().min(3).max(30).required(),
+  discountType: joi.string().valid("percentage", "fixed").default("percentage"),
+  discount: joi
+    .number()
+    .positive()
+    .when("discountType", { is: "percentage", then: joi.number().max(100) })
+    .required(),
+  minOrderValue: joi.number().min(0).default(0),
+  startDate: joi.date().required(),
+  expiresAt: joi.date().greater(joi.ref("startDate")).required(),
+  usageLimit: joi.number().integer().positive().allow(null).default(null),
+  isActive: joi.boolean().default(true),
+});
+
+const updateCouponSchema = joi
+  .object({
+    discountType: joi.string().valid("percentage", "fixed"),
+    discount: joi.number().positive(),
+    minOrderValue: joi.number().min(0),
+    startDate: joi.date(),
+    expiresAt: joi.date(),
+    usageLimit: joi.number().integer().positive().allow(null),
+    isActive: joi.boolean(),
+  })
+  .min(1);
 
 const sepayWebhookSchema = joi
   .object({
@@ -283,4 +311,6 @@ module.exports = {
   subscribeToTemplateSchema,
   checkoutSchema,
   sepayWebhookSchema,
+  couponSchema,
+  updateCouponSchema,
 };

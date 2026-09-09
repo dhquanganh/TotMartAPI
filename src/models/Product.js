@@ -1,32 +1,35 @@
-const mongoose = require('mongoose');
-const slug = require('mongoose-slug-updater');
+const mongoose = require("mongoose");
+const slug = require("mongoose-slug-updater");
 
 const productSchema = new mongoose.Schema(
-    {
-        productId: { type: String, unique: true, required: true },
-        name: { type: String, required: true },
-        price: { type: Number, required: true },
-        description: { type: String },
-        brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
-        category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-        instock: { type: Boolean, default: true },
-        stock: { type: Number, default: 0 },
-        images: [
-            {
-                url: { type: String, required: true },
-                public_id: { type: String, required: true }
-            }
-        ],
-        salePercent: { type: Number, default: 0 },
-        details: { type: String },
-        rate: { type: Number, default: 0 },
-        slug: { type: String, slug: "name", unique: true },
-        views: { type: Number, default: 0 },
-        selledNumber: { type: Number, default: 0 },
-    }, {
-    timestamps: true
-}
-)
+  {
+    productId: { type: String, unique: true, required: true },
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String },
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+    instock: { type: Boolean, default: true },
+    stock: { type: Number, default: 0 },
+    images: [
+      {
+        url: { type: String, required: true },
+        public_id: { type: String, required: true },
+      },
+    ],
+    salePercent: { type: Number, default: 0 },
+    details: { type: String },
+    rate: { type: Number, default: 0 },
+    slug: { type: String, slug: "name", unique: true },
+    views: { type: Number, default: 0 },
+    selledNumber: { type: Number, default: 0 },
+  },
+  {
+    timestamps: true,
+  },
+);
+productSchema.index({ brand: 1, category: 1 });
+productSchema.index({ instock: 1, stock: -1 });
 
 mongoose.plugin(slug);
-module.exports = mongoose.model('Product', productSchema);
+module.exports = mongoose.model("Product", productSchema);

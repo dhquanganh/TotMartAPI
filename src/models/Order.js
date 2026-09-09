@@ -80,6 +80,21 @@ const orderSchema = new mongoose.Schema(
       default: null,
     },
 
+    merchantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    paymentCode: { type: String, required: true },
+
+    refundStatus: {
+      type: String,
+      enum: ["not_applicable", "pending", "completed"],
+      default: "not_applicable",
+    },
+    refundAmount: { type: Number, default: null },
+    refundedAt: { type: Date, default: null },
+
     statusHistory: [
       {
         status: { type: String, required: true },
@@ -100,6 +115,7 @@ const orderSchema = new mongoose.Schema(
 
 orderSchema.index({ userId: 1, createdAt: -1 });
 orderSchema.index({ status: 1, paymentMethod: 1 });
+orderSchema.index({ refundStatus: 1 });
 
 orderSchema.pre("save", function (next) {
   const now = new Date();
