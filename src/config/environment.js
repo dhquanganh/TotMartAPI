@@ -1,23 +1,44 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const config = {
   port: process.env.PORT || 3000,
   mongodb: {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/nodejs-mvc-db'
+    uri: process.env.MONGODB_URI || "mongodb://localhost:27017/nodejs-mvc-db",
   },
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    secret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
+    refreshSecret:
+      process.env.JWT_REFRESH_SECRET ||
+      "your-refresh-secret-change-in-production",
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "30d",
   },
-  nodeEnv: process.env.NODE_ENV || 'development'
+  frontendUrl: process.env.FRONTEND_URL || "http://localhost:3000",
+  sepay: {
+    apiKey: process.env.SEPAY_API_KEY,
+    bankAccount: process.env.SEPAY_BANK_ACCOUNT,
+    bankName: process.env.SEPAY_BANK_NAME,
+  },
+  orderExpiryHours: Number(process.env.ORDER_EXPIRY_HOURS) || 24,
+  nodeEnv: process.env.NODE_ENV || "development",
 };
 
-if (config.nodeEnv === 'production') {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET environment variable is required in production');
-  }
-  if (!process.env.MONGODB_URI) {
-    throw new Error('MONGODB_URI environment variable is required in production');
+if (config.nodeEnv === "production") {
+  const requiredInProduction = [
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "MONGODB_URI",
+    "FRONTEND_URL",
+    "SEPAY_API_KEY",
+    "SEPAY_BANK_ACCOUNT",
+    "SEPAY_BANK_NAME",
+  ];
+
+  const missing = requiredInProduction.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required environment variables in production: ${missing.join(", ")}`,
+    );
   }
 }
 
